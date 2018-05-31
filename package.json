@@ -1,0 +1,27 @@
+{
+  "name": "gdv-banknoten-visualisierung",
+  "version": "1.0.0",
+  "description": "Hello",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "serve": "browser-sync start --server --files 'build/**/*.js, index.html'",
+    "dev": "concurrently --kill-others \"npm run watch\" \"npm run serve\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrpatpat/gdv-banknoten-visualisierunga.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrpatpat/gdv-banknoten-visualisierunga/issues"
+  },
+  "homepage": "https://github.com/mrpatpat/gdv-banknoten-visualisierunga#readme",
+  "devDependencies": {
+    "browser-sync": "^2.24.4",
+    "concurrently": "^3.5.1",
+    "typescript": "^2.8.4"
+  }
+}
