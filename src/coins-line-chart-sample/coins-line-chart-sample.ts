@@ -73,16 +73,42 @@ export class CoinsLineChartSample {
 
         rangeY.domain([Math.exp(0), Math.exp(2)]);
 
+        let tooltip = d3.select(selector).append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        let tipMouseover = function(d) {
+            let html  = "<h2>" + d.nominal + "</h2><br/><img width='800' src='"+d.image+"'></html>";
+
+            tooltip.html(html)
+                .style("left", (d3.event.pageX + 15) + "px")
+                .style("top", (d3.event.pageY - 28) + "px")
+                .transition()
+                .duration(100) // ms
+                .style("opacity", .9) // started as 0!
+
+        };
+
+        let tipMouseout = function(d) {
+            tooltip.transition()
+                .duration(300) // ms
+                .style("opacity", 0); // don't care about position!
+        };
+
         svg.selectAll("dot")
             .data(csvData)
-            .enter().append("circle")
-            .attr("r", 4)
-            .attr("cx", function (d) {
+            .enter()
+            .append('image')
+            .attr("xlink:href", function(d){ return d.thumb })
+            .attr("width", 32)
+            .attr("x", function (d) {
                 return rangeX(d.von);
             })
-            .attr("cy", function (d) {
+            .attr("y", function (d) {
                 return rangeY(d.euro);
-            });
+            })
+            .on("mouseover", tipMouseover)
+            .on("mouseout", tipMouseout);
 
         svg.append("g")
             .attr("transform", "translate(0," + this.height + ")")
