@@ -1,23 +1,39 @@
-
 const path = require('path');
+const src = __dirname + "/src";
+const dist = __dirname + "/dist";
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: './src/index.html',
-  filename: 'index.html',
-  inject: 'body'
-})
-
-module.exports = { 
-  entry: './src/index.js', 
-  output: { 
-    path: path.resolve('dist'), 
-    filename: 'index_bundle.js'
-  },
+module.exports = {
+    entry: path.join(src, '/index.ts'),
+    output: {
+        filename: 'index.js',
+        path: dist
+    },
     module: {
         rules: [
-            { test: /\.js$/, use: 'babel-loader' }
+            {
+                test: /\.tsx?$/,
+                loader: 'ts-loader',
+                exclude: /node_modules/,
+            },
+            {
+                test: /\.csv$/,
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    emitFiles: true
+                }
+            },
         ]
     },
-  plugins: [HtmlWebpackPluginConfig]
-}
+    plugins: [
+        new HtmlWebpackPlugin(
+            {
+                template: src + "/index.html"
+            }
+        )
+    ],
+    resolve: {
+        extensions: [".tsx", ".ts", ".js"]
+    },
+};
