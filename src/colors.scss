@@ -1,0 +1,16 @@
+body {
+  background-color: #efefef;
+}
+
+#chart, #details, #list {
+  background-color: #cdcdcd;
+}
+
+#list {
+  font-size: 9px;
+
+}
+
+.list-element:hover, .list-element.highlighted {
+  background-color: crimson;
+}

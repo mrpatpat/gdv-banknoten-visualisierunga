@@ -24,6 +24,16 @@ module.exports = {
                     emitFiles: true
                 }
             },
+            {
+                test: /\.scss$/,
+                use: [{
+                    loader: "style-loader"
+                }, {
+                    loader: "css-loader"
+                }, {
+                    loader: "sass-loader"
+                }]
+            }
         ]
     },
     plugins: [
@@ -35,5 +45,7 @@ module.exports = {
     ],
     resolve: {
         extensions: [".tsx", ".ts", ".js"]
-    },
-};
+    }
+    ,
+}
+;

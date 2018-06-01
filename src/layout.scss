@@ -1,0 +1,31 @@
+#chart {
+   width: 840px;
+   height: 280px;
+   float: left;
+    margin-bottom: 20px;
+ }
+
+#list {
+  width: 420px;
+  height: 800px;
+  float: right;
+}
+
+#details {
+  width: 840px;
+  min-height:500px;
+  float:left;
+
+  div {
+      margin-top: 20px;
+      margin-left: 20px;
+      width: 800px;
+
+      img {
+        max-height: 390px;
+        max-width: 790px;
+        margin: 5px;
+      }
+  }
+
+}

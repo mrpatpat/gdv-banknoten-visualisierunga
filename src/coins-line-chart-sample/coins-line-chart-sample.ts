@@ -1,122 +1,96 @@
 import "../assets/coins.csv";
 import * as d3 from "d3";
-import {DSVParsedArray, DSVRowString} from "d3-dsv";
+import {CoinRow, CsvService} from "../service/csv-service";
 
-interface CoinRow {
-    id: string,
-    name: string,
-    nominal: string,
-    pfennig: number,
-    hoehe: number,
-    breite: number,
-    thumb: string,
-    image: string,
-    euro: number,
-    von: Date,
-    bis: Date
+export interface CoinsLineChartSampleSubscriber {
+    onMouseOverDot(data: CoinRow, x: number, y: number);
+    onMouseOutDot(data: CoinRow, x: number, y: number);
 }
 
 export class CoinsLineChartSample {
 
-    private margin;
-    private width;
-    private height;
+    private static FILE = "coins.csv";
+    private static MARGIN = 20;
+    private static WIDTH = 800;
+    private static HEIGHT = 200;
+    private static DOT_WIDTH = 32;
 
-    constructor(width: number, height: number, margin: number) {
-        this.margin = margin;
-        this.width = width;
-        this.height = height;
+    private subscribers: CoinsLineChartSampleSubscriber[] = [];
+
+    public registerSubscriber(subscriber: CoinsLineChartSampleSubscriber) {
+        this.subscribers.push(subscriber);
     }
 
     public async render(selector: string) {
-        const transformed = await this.transformCsv("coins.csv");
-        await this.renderFrom(transformed, selector);
+        const transformed = await CsvService.parse(CoinsLineChartSample.FILE);
+        const svg = this.buildSvgContainerInSelector(selector);
+        this.addAxis(svg, transformed);
+        this.addDots(svg, selector, transformed);
     }
 
-    private parseTime(time: string): Date {
-        return d3.isoParse(time);
+    private addAxis(svg, csvData) {
+
+        const timeAxisFn = this.buildTimeAxisFn(csvData);
+        const euroAxisFn = this.buildEuroAxisFn(csvData);
+
+        svg.append("g")
+            .attr("transform", "translate(0," + CoinsLineChartSample.HEIGHT + ")")
+            .call(d3.axisBottom(timeAxisFn));
+
+        svg.append("g")
+            .call(d3.axisLeft(euroAxisFn));
+
     }
 
-    private async transformCsv(fileName: string) : Promise<DSVParsedArray<CoinRow>> {
-        return await d3.csv<CoinRow>(fileName, (rawRow: DSVRowString) => {
-            return {
-                id: rawRow["id"],
-                name: rawRow["name"],
-                nominal: rawRow["nominal"],
-                pfennig: parseInt(rawRow["pfennig"]),
-                hoehe: parseFloat(rawRow["hoehe"].replace(',', '.')),
-                breite: parseFloat(rawRow["breite"].replace(',', '.')),
-                thumb: rawRow["thumb"],
-                image: rawRow["image"],
-                euro: parseFloat(rawRow["euro"].replace(',', '.')),
-                von: this.parseTime(rawRow["von"]),
-                bis: this.parseTime(rawRow["bis"])
-            }
-        })
-    }
+    private addDots(svg, selector, csvData) {
 
-    private async renderFrom(csvData: DSVParsedArray<CoinRow>, selector: string) {
-
-        const svg = d3.select(selector).append("svg")
-            .attr("width", this.width + this.margin + this.margin)
-            .attr("height", this.height + this.margin + this.margin)
-            .append("g")
-            .attr("transform",
-                "translate(" + this.margin + "," + this.margin + ")");
-
-        let rangeX = d3.scaleTime().range([0, this.width]);
-        let rangeY = d3.scaleLog().base(10).range([this.height, 0]);
-
-        rangeX.domain(d3.extent(csvData, function (d) {
-            return d.von;
-        }));
-
-        rangeY.domain([Math.exp(0), Math.exp(2)]);
-
-        let tooltip = d3.select(selector).append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-
-        let tipMouseover = function(d) {
-            let html  = "<h2>" + d.nominal + "</h2><br/><img width='800' src='"+d.image+"'></html>";
-
-            tooltip.html(html)
-                .style("left", (d3.event.pageX + 15) + "px")
-                .style("top", (d3.event.pageY - 28) + "px")
-                .transition()
-                .duration(100) // ms
-                .style("opacity", .9) // started as 0!
-
-        };
-
-        let tipMouseout = function(d) {
-            tooltip.transition()
-                .duration(300) // ms
-                .style("opacity", 0); // don't care about position!
-        };
+        const timeAxisFn = this.buildTimeAxisFn(csvData);
+        const euroAxisFn = this.buildEuroAxisFn(csvData);
 
         svg.selectAll("dot")
             .data(csvData)
             .enter()
             .append('image')
-            .attr("xlink:href", function(d){ return d.thumb })
-            .attr("width", 32)
-            .attr("x", function (d) {
-                return rangeX(d.von);
+            .attr("xlink:href", d => d.thumb)
+            .attr("width", CoinsLineChartSample.DOT_WIDTH)
+            .attr("x", d => timeAxisFn(d.von))
+            .attr("y", d => euroAxisFn(d.euro))
+            .on("mouseover", (d) => {
+                this.subscribers.forEach(s => s.onMouseOverDot(d, d3.event.pageX, d3.event.pageY));
             })
-            .attr("y", function (d) {
-                return rangeY(d.euro);
-            })
-            .on("mouseover", tipMouseover)
-            .on("mouseout", tipMouseout);
+            .on("mouseout", (d) => {
+                this.subscribers.forEach(s => s.onMouseOutDot(d, d3.event.pageX, d3.event.pageY));
+            });
 
-        svg.append("g")
-            .attr("transform", "translate(0," + this.height + ")")
-            .call(d3.axisBottom(rangeX));
+    }
 
-        svg.append("g")
-            .call(d3.axisLeft(rangeY));
+    private buildSvgContainerInSelector(selector: string) {
+        return d3
+            .select(selector)
+            .append("svg")
+            .attr("width", CoinsLineChartSample.WIDTH + CoinsLineChartSample.MARGIN + CoinsLineChartSample.MARGIN)
+            .attr("height", CoinsLineChartSample.HEIGHT + CoinsLineChartSample.MARGIN + CoinsLineChartSample.MARGIN)
+            .append("g")
+            .attr("transform", "translate(" + CoinsLineChartSample.MARGIN + "," + CoinsLineChartSample.MARGIN + ")");
+    }
 
+    private buildTimeAxisFn(csvData) {
+        return d3
+            .scaleTime()
+            .range([0, CoinsLineChartSample.WIDTH])
+            .domain(d3.extent(csvData, (d: CoinRow) => {
+                return +d.von
+            }));
+    }
+
+    private buildEuroAxisFn(csvData) {
+        return d3
+            .scaleLog()
+            .base(10)
+            .range([CoinsLineChartSample.HEIGHT, 0])
+            .domain(d3.extent(csvData, (d: CoinRow) => {
+                return +d.euro
+            }));
     }
 
 }
