@@ -1,11 +1,7 @@
 import "../assets/coins.csv";
 import * as d3 from "d3";
 import {CoinRow, CsvService} from "../service/csv-service";
-
-export interface CoinsLineChartSampleSubscriber {
-    onMouseOverDot(data: CoinRow, x: number, y: number);
-    onMouseOutDot(data: CoinRow, x: number, y: number);
-}
+import {Subject} from "rxjs/internal/Subject";
 
 export class CoinsLineChartSample {
 
@@ -15,17 +11,14 @@ export class CoinsLineChartSample {
     private static HEIGHT = 200;
     private static DOT_WIDTH = 32;
 
-    private subscribers: CoinsLineChartSampleSubscriber[] = [];
-
-    public registerSubscriber(subscriber: CoinsLineChartSampleSubscriber) {
-        this.subscribers.push(subscriber);
-    }
+    public onMouseOverDot$ = new Subject<CoinRow>();
+    public onMouseOutDot$ = new Subject<CoinRow>();
 
     public async render(selector: string) {
         const transformed = await CsvService.parse(CoinsLineChartSample.FILE);
         const svg = this.buildSvgContainerInSelector(selector);
         this.addAxis(svg, transformed);
-        this.addDots(svg, selector, transformed);
+        this.addDots(svg, transformed);
     }
 
     private addAxis(svg, csvData) {
@@ -42,7 +35,7 @@ export class CoinsLineChartSample {
 
     }
 
-    private addDots(svg, selector, csvData) {
+    private addDots(svg, csvData) {
 
         const timeAxisFn = this.buildTimeAxisFn(csvData);
         const euroAxisFn = this.buildEuroAxisFn(csvData);
@@ -56,10 +49,10 @@ export class CoinsLineChartSample {
             .attr("x", d => timeAxisFn(d.von))
             .attr("y", d => euroAxisFn(d.euro))
             .on("mouseover", (d) => {
-                this.subscribers.forEach(s => s.onMouseOverDot(d, d3.event.pageX, d3.event.pageY));
+                this.onMouseOverDot$.next(d);
             })
             .on("mouseout", (d) => {
-                this.subscribers.forEach(s => s.onMouseOutDot(d, d3.event.pageX, d3.event.pageY));
+                this.onMouseOutDot$.next(d);
             });
 
     }

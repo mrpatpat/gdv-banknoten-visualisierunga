@@ -9,10 +9,14 @@ const chart = new CoinsLineChartSample();
 const details = new CoinsLineChartSampleDetails();
 const list = new CoinsLineChartSampleList();
 
-chart.registerSubscriber(details);
-chart.registerSubscriber(list);
+chart.onMouseOverDot$.subscribe(details.setDetails);
+chart.onMouseOverDot$.subscribe(list.highlight);
 
-list.registerSubscriber(details);
+chart.onMouseOutDot$.subscribe(details.clearDetails);
+chart.onMouseOutDot$.subscribe(list.clearHighlight);
+
+list.onMouseOverListElement$.subscribe(details.setDetails);
+list.onMouseOutListElement$.subscribe(details.clearDetails);
 
 chart.render("#chart");
 details.render("#details");

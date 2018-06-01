@@ -1,21 +1,22 @@
 import * as d3 from "d3";
-
 import {CoinRow} from "../service/csv-service";
-import {CoinsLineChartSampleSubscriber} from "./coins-line-chart-sample";
-import {CoinsLineChartSampleListSubscriber} from "./coins-line-chart-sample-list";
 
-export class CoinsLineChartSampleDetails implements CoinsLineChartSampleSubscriber, CoinsLineChartSampleListSubscriber{
+export class CoinsLineChartSampleDetails {
 
     private static ANIMATION_LENGTH_MS = 200;
 
     private container;
 
+    constructor() {
+        this.setDetails = this.setDetails.bind(this);
+        this.clearDetails = this.clearDetails.bind(this);
+    }
+
     public render(selector: string) {
         this.container = this.buildContainer(selector);
     }
 
-
-    onMouseOverListElement(data: CoinRow) {
+    public setDetails (data: CoinRow) {
         if(this.container) {
             this.container
                 .html(this.buildTooltipHtml(data))
@@ -25,21 +26,13 @@ export class CoinsLineChartSampleDetails implements CoinsLineChartSampleSubscrib
         }
     }
 
-    onMouseOutListElement(data: CoinRow) {
+    public clearDetails() {
         if(this.container) {
             this.container
                 .transition()
                 .duration(CoinsLineChartSampleDetails.ANIMATION_LENGTH_MS)
                 .style("opacity", 0);
         }
-    }
-
-    onMouseOverDot(data: CoinRow, x: number, y: number) {
-        this.onMouseOverListElement(data);
-    }
-
-    onMouseOutDot(data: CoinRow, x: number, y: number) {
-        this.onMouseOutListElement(data);
     }
 
     private buildContainer(selector: string) {

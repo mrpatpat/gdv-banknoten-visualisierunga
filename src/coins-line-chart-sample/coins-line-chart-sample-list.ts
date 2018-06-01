@@ -2,24 +2,21 @@ import * as d3 from "d3";
 import "../assets/coins.csv";
 
 import {CoinRow, CsvService} from "../service/csv-service";
-import {CoinsLineChartSampleSubscriber} from "./coins-line-chart-sample";
 import {DSVParsedArray} from "d3-dsv";
+import {Subject} from "rxjs/internal/Subject";
 
-export interface CoinsLineChartSampleListSubscriber {
-    onMouseOverListElement(data: CoinRow);
-    onMouseOutListElement(data: CoinRow);
-}
-
-export class CoinsLineChartSampleList implements CoinsLineChartSampleSubscriber{
+export class CoinsLineChartSampleList {
 
     private static FILE = "coins.csv";
 
     private container;
 
-    private subscribers: CoinsLineChartSampleListSubscriber[] = [];
+    public onMouseOverListElement$ = new Subject<CoinRow>();
+    public onMouseOutListElement$ = new Subject<CoinRow>();
 
-    public registerSubscriber(subscriber: CoinsLineChartSampleListSubscriber) {
-        this.subscribers.push(subscriber);
+    constructor() {
+        this.clearHighlight = this.clearHighlight.bind(this);
+        this.highlight = this.highlight.bind(this);
     }
 
     public async render(selector: string) {
@@ -27,11 +24,11 @@ export class CoinsLineChartSampleList implements CoinsLineChartSampleSubscriber{
         this.container = this.buildContainer(selector, data);
     }
 
-    onMouseOverDot(data: CoinRow, x: number, y: number) {
-        d3.select("#list-element-"+data.id).classed("highlighted", true);
+    highlight(data: CoinRow) {
+        d3.select("#list-element-" + data.id).classed("highlighted", true);
     }
 
-    onMouseOutDot(data: CoinRow, x: number, y: number) {
+    clearHighlight(data: CoinRow) {
         d3.select("li.highlighted").classed("highlighted", false);
     }
 
@@ -41,16 +38,16 @@ export class CoinsLineChartSampleList implements CoinsLineChartSampleSubscriber{
             .select(selector)
             .append("ul");
 
-        builder = d3.select(selector+" ul");
+        builder = d3.select(selector + " ul");
 
-        data.forEach((row)=>{
-           builder
-               .append("li")
-               .attr("class", "list-element")
-               .attr("id", "list-element-"+row.id)
-               .on("mouseover",  ()=>this.subscribers.forEach(s => s.onMouseOverListElement(row)))
-               .on("mouseout",  ()=>this.subscribers.forEach(s => s.onMouseOutListElement(row)))
-               .html(row.nominal);
+        data.forEach((row) => {
+            builder
+                .append("li")
+                .attr("class", "list-element")
+                .attr("id", "list-element-" + row.id)
+                .on("mouseover", () => this.onMouseOverListElement$.next(row))
+                .on("mouseout", () => this.onMouseOutListElement$.next(row))
+                .html(row.nominal);
         });
 
         return builder.attr("id", "coins-line-chart-sample-list");
