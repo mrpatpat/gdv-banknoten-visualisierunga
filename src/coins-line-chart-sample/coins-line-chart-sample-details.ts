@@ -16,8 +16,8 @@ export class CoinsLineChartSampleDetails {
         this.container = this.buildContainer(selector);
     }
 
-    public setDetails (data: CoinRow) {
-        if(this.container) {
+    public setDetails(data: CoinRow) {
+        if (this.container) {
             this.container
                 .html(this.buildTooltipHtml(data))
                 .transition()
@@ -27,7 +27,7 @@ export class CoinsLineChartSampleDetails {
     }
 
     public clearDetails() {
-        if(this.container) {
+        if (this.container) {
             this.container
                 .transition()
                 .duration(CoinsLineChartSampleDetails.ANIMATION_LENGTH_MS)
@@ -44,7 +44,10 @@ export class CoinsLineChartSampleDetails {
     }
 
     private buildTooltipHtml(data: CoinRow) {
-        return "<h2>" + data.nominal + " (" + (data.euro * data.pfennig/100)  +"€)" + "</h2><img src='" + data.image + "'>";
+        return "<h2>" + data.nominal + "</h2>" +
+            "Zeitraum: " + data.von.getFullYear() + " bis " + data.bis.getFullYear() + "<br>" +
+            "Heutiger Wert: " + (data.euro * data.pfennig / 100) + "€" + " ("+data.euro+"€ pro Mark)" + "<br><br>" +
+            "<img src='" + data.image + "'>";
     }
 
 }

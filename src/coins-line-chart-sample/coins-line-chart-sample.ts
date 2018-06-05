@@ -5,7 +5,7 @@ import {Subject} from "rxjs/internal/Subject";
 
 export class CoinsLineChartSample {
 
-    private static FILE = "coins.csv";
+    private static FILE = "https://spreadsheets.google.com/tq?key=1f8iOIEZi9_fXgrGK0xxnVmmaX0ZG_28lP67M0Dyr5OU&tqx=out:csv";
     private static MARGIN = 20;
     private static WIDTH = 800;
     private static HEIGHT = 200;
