@@ -35,6 +35,15 @@ export class CoinsLineChartSample {
 
     }
 
+    public highlightDot(row: CoinRow) {
+        d3.selectAll(".dot").classed("highlighted", false);
+        d3.select("#image-" + row.id).classed("highlighted", true);
+    }
+
+    public unhighlightDot() {
+        d3.selectAll(".dot").classed("highlighted", false);
+    }
+
     private addDots(svg, csvData) {
 
         const timeAxisFn = this.buildTimeAxisFn(csvData);
@@ -48,6 +57,8 @@ export class CoinsLineChartSample {
             .attr("width", CoinsLineChartSample.DOT_WIDTH)
             .attr("x", d => timeAxisFn(d.von))
             .attr("y", d => euroAxisFn(d.euro))
+            .attr("id", d => "image-"+d.id)
+            .attr("class", d => "dot")
             .on("mouseover", (d) => {
                 this.onMouseOverDot$.next(d);
             })
@@ -58,6 +69,7 @@ export class CoinsLineChartSample {
     }
 
     private buildSvgContainerInSelector(selector: string) {
+
         return d3
             .select(selector)
             .append("svg")

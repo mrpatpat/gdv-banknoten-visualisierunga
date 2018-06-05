@@ -11,6 +11,12 @@ body {
 
 }
 
-.list-element:hover, .list-element.highlighted {
+.list-element:hover, .list-element.highlighted{
   background-color: crimson;
+}
+
+.dot.highlighted {
+  width: 64px;
+  height: auto;
+  border: 2px solid crimson;
 }

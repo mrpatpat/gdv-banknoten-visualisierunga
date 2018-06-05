@@ -18,6 +18,9 @@ chart.onMouseOutDot$.subscribe(list.clearHighlight);
 list.onMouseOverListElement$.subscribe(details.setDetails);
 list.onMouseOutListElement$.subscribe(details.clearDetails);
 
+list.onMouseOverListElement$.subscribe(chart.highlightDot);
+list.onMouseOutListElement$.subscribe(chart.unhighlightDot);
+
 chart.render("#chart");
 details.render("#details");
 list.render("#list");
