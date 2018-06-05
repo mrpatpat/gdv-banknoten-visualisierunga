@@ -44,7 +44,7 @@ export class CoinsLineChartSampleDetails {
     }
 
     private buildTooltipHtml(data: CoinRow) {
-        return "<h2>" + data.nominal + " (" + data.euro +"€)" + "</h2><img src='" + data.image + "'>";
+        return "<h2>" + data.nominal + " (" + (data.euro * data.pfennig/100)  +"€)" + "</h2><img src='" + data.image + "'>";
     }
 
 }
