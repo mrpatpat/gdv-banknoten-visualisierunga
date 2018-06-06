@@ -7,8 +7,6 @@ import {Subject} from "rxjs/internal/Subject";
 
 export class CoinsLineChartSampleList {
 
-    private static FILE = "https://spreadsheets.google.com/tq?key=1f8iOIEZi9_fXgrGK0xxnVmmaX0ZG_28lP67M0Dyr5OU&tqx=out:csv";
-
     private container;
 
     public onMouseOverListElement$ = new Subject<CoinRow>();
@@ -20,7 +18,7 @@ export class CoinsLineChartSampleList {
     }
 
     public async render(selector: string) {
-        const data = await CsvService.parse(CoinsLineChartSampleList.FILE);
+        const data = await CsvService.getCoins();
         this.container = this.buildContainer(selector, data);
     }
 
@@ -47,7 +45,7 @@ export class CoinsLineChartSampleList {
                 .attr("id", "list-element-" + row.id)
                 .on("mouseover", () => this.onMouseOverListElement$.next(row))
                 .on("mouseout", () => this.onMouseOutListElement$.next(row))
-                .html(row.nominal);
+                .html(row.nominal + " (" + row.von.getFullYear() + ")");
         });
 
         return builder.attr("id", "coins-line-chart-sample-list");

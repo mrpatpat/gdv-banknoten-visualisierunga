@@ -18,11 +18,7 @@ module.exports = {
             },
             {
                 test: /\.csv$/,
-                loader: 'file-loader',
-                options: {
-                    name: '[name].[ext]',
-                    emitFiles: true
-                }
+                loader: 'raw-loader'
             },
             {
                 test: /\.scss$/,

@@ -21,8 +21,8 @@ export class CsvService {
         return d3.isoParse(time);
     }
 
-    public static async parse(fileName: string): Promise<DSVParsedArray<CoinRow>> {
-        return await d3.csv<CoinRow>(fileName, (rawRow: DSVRowString) => {
+    public static async getCoins(): Promise<DSVParsedArray<CoinRow>> {
+        return await d3.csvParse<CoinRow>(require("../assets/coins.csv"), (rawRow: DSVRowString) => {
             return {
                 id: rawRow["id"],
                 name: rawRow["name"],

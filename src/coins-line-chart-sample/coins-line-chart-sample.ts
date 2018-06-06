@@ -5,17 +5,16 @@ import {Subject} from "rxjs/internal/Subject";
 
 export class CoinsLineChartSample {
 
-    private static FILE = "https://spreadsheets.google.com/tq?key=1f8iOIEZi9_fXgrGK0xxnVmmaX0ZG_28lP67M0Dyr5OU&tqx=out:csv";
-    private static MARGIN = 20;
-    private static WIDTH = 800;
-    private static HEIGHT = 200;
+    private static MARGIN = 60;
+    private static WIDTH = 800 - 2* CoinsLineChartSample.MARGIN;
+    private static HEIGHT = 600 - 2* CoinsLineChartSample.MARGIN;
     private static DOT_WIDTH = 32;
 
     public onMouseOverDot$ = new Subject<CoinRow>();
     public onMouseOutDot$ = new Subject<CoinRow>();
 
     public async render(selector: string) {
-        const transformed = await CsvService.parse(CoinsLineChartSample.FILE);
+        const transformed = await CsvService.getCoins();
         const svg = this.buildSvgContainerInSelector(selector);
         this.addAxis(svg, transformed);
         this.addDots(svg, transformed);
@@ -30,8 +29,23 @@ export class CoinsLineChartSample {
             .attr("transform", "translate(0," + CoinsLineChartSample.HEIGHT + ")")
             .call(d3.axisBottom(timeAxisFn));
 
+        svg.append("text")
+            .attr("x", CoinsLineChartSample.WIDTH / 2)
+            .attr("y",CoinsLineChartSample.HEIGHT +20)
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Jahr");
+
         svg.append("g")
             .call(d3.axisLeft(euroAxisFn));
+
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - CoinsLineChartSample.MARGIN)
+            .attr("x",0 - (CoinsLineChartSample.HEIGHT / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Kaufkraft in Euro pro Mark");
 
     }
 
@@ -60,9 +74,11 @@ export class CoinsLineChartSample {
             .attr("id", d => "image-"+d.id)
             .attr("class", d => "dot")
             .on("mouseover", (d) => {
+                this.highlightDot(d);
                 this.onMouseOverDot$.next(d);
             })
             .on("mouseout", (d) => {
+                this.unhighlightDot();
                 this.onMouseOutDot$.next(d);
             });
 

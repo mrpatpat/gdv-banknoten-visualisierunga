@@ -45,7 +45,7 @@ export class CoinsLineChartSampleDetails {
 
     private buildTooltipHtml(data: CoinRow) {
         return "<h2>" + data.nominal + "</h2>" +
-            "Zeitraum: " + data.von.getFullYear() + " bis " + data.bis.getFullYear() + "<br>" +
+            "Erscheinungsjahr: " + data.von.getFullYear() + "<br>" +
             "Heutiger Wert: " + (data.euro * data.pfennig / 100) + "€" + " ("+data.euro+"€ pro Mark)" + "<br><br>" +
             "<img src='" + data.image + "'>";
     }

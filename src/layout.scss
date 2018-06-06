@@ -1,31 +1,44 @@
-#chart {
-   width: 840px;
-   height: 280px;
-   float: left;
-    margin-bottom: 20px;
- }
-
-#list {
-  width: 420px;
-  height: 800px;
-  float: right;
+* {
+  margin: 0;
+  padding: 0;
 }
 
-#details {
-  width: 840px;
-  min-height:500px;
-  float:left;
+#chart {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 800px;
+  height: 600px;
+  float: left;
+}
 
-  div {
-      margin-top: 20px;
-      margin-left: 20px;
-      width: 800px;
+#list {
+  position: absolute;
+  top: 0;
+  left: 800px;
+  width: 300px;
+  max-height: 300px;
+  float: right;
+  overflow-y: scroll;
 
-      img {
-        max-height: 390px;
-        max-width: 790px;
-        margin: 5px;
-      }
+  li {
+    list-style-type: none;
   }
 
 }
+
+#details {
+  position: absolute;
+  top: 300px;
+  left: 800px;
+  width: 300px;
+  height: 300px;
+  float: right;
+
+  img {
+    max-height: 150px;
+    max-width: 300px;
+  }
+
+}
+

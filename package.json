@@ -19,6 +19,7 @@
   "homepage": "https://github.com/mrpatpat/gdv-banknoten-visualisierunga#readme",
   "devDependencies": {
     "@types/d3": "^5.0.0",
+    "@types/node": "^10.3.1",
     "css-loader": "^0.28.11",
     "d3": "^5.4.0",
     "file-loader": "^1.1.11",
