@@ -47,6 +47,14 @@ export class CoinsLineChartSample {
             .style("text-anchor", "middle")
             .text("Kaufkraft in Euro pro Mark");
 
+        svg.append('line')
+            .style('stroke', '#900')
+            .style('stroke-width', '1px')
+            .attr('x1', 0)
+            .attr('y1', euroAxisFn(1))
+            .attr('x2', CoinsLineChartSample.WIDTH)
+            .attr('y2', euroAxisFn(1));
+
     }
 
     public highlightDot(row: CoinRow) {
