@@ -2,17 +2,18 @@ body {
   background-color: #efefef;
 }
 
-#chart, #details, #list {
+#chart, #details, #list, #epoches {
   background-color: #efefef;
   border: 1px solid #333333;
 }
 
-#list {
+#list, #epoches {
   font-size: 9px;
 
 }
 
-.list-element:hover, .list-element.highlighted{
+.list-element:hover, .list-element.highlighted,
+.epoche-element:hover, .epoche-element.highlighted{
   background-color: crimson;
 }
 

@@ -22,15 +22,22 @@ export class CoinsLineChartSampleList {
         this.container = this.buildContainer(selector, data);
     }
 
+    public async filter(selector: string, start: number = 0, end: number = 9999) {
+        const transformed = await CsvService.getCoins();
+        const filtered: CoinRow[] = transformed.filter(coin => coin.von.getFullYear() >= start && coin.bis.getFullYear() <= end);
+        d3.select(selector + ">ul").remove();
+        this.container = this.buildContainer(selector, filtered);
+    }
+
     highlight(data: CoinRow) {
         d3.select("#list-element-" + data.id).classed("highlighted", true);
     }
 
     clearHighlight(data: CoinRow) {
-        d3.select("li.highlighted").classed("highlighted", false);
+        d3.select(".list-element.highlighted").classed("highlighted", false);
     }
 
-    private buildContainer(selector: string, data: DSVParsedArray<CoinRow>) {
+    private buildContainer(selector: string, data) {
 
         let builder = d3
             .select(selector)

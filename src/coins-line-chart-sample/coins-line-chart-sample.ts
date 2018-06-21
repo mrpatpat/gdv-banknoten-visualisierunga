@@ -13,14 +13,24 @@ export class CoinsLineChartSample {
     public onMouseOverDot$ = new Subject<CoinRow>();
     public onMouseOutDot$ = new Subject<CoinRow>();
 
-    public async render(selector: string) {
+    public async render(selector: string, start: number = 0, end: number = 9999) {
         const transformed = await CsvService.getCoins();
+        const filtered: CoinRow[] = transformed.filter(coin => coin.von.getFullYear() >= start && coin.bis.getFullYear() <= end);
         const svg = this.buildSvgContainerInSelector(selector);
-        this.addAxis(svg, transformed);
-        this.addDots(svg, transformed);
+        this.addAxis(svg, filtered);
+        this.addDots(svg, filtered);
     }
 
-    private addAxis(svg, csvData) {
+    public async filter(selector: string, start: number = 0, end: number = 9999) {
+        const transformed = await CsvService.getCoins();
+        const filtered: CoinRow[] = transformed.filter(coin => coin.von.getFullYear() >= start && coin.bis.getFullYear() <= end);
+        d3.select("svg").remove();
+        const svg = this.buildSvgContainerInSelector(selector);
+        this.addAxis(svg, filtered);
+        this.addDots(svg, filtered);
+    }
+
+    private addAxis(svg, csvData: CoinRow[]) {
 
         const timeAxisFn = this.buildTimeAxisFn(csvData);
         const euroAxisFn = this.buildEuroAxisFn(csvData);
@@ -66,7 +76,7 @@ export class CoinsLineChartSample {
         d3.selectAll(".dot").classed("highlighted", false);
     }
 
-    private addDots(svg, csvData) {
+    private addDots(svg, csvData: CoinRow[]) {
 
         const timeAxisFn = this.buildTimeAxisFn(csvData);
         const euroAxisFn = this.buildEuroAxisFn(csvData);

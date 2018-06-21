@@ -42,3 +42,20 @@
 
 }
 
+
+#epoches {
+  position: absolute;
+  top: 600px;
+  left: 0px;
+  width: 300px;
+  height: 300px;
+  max-height: 300px;
+  float: right;
+  overflow-y: scroll;
+
+  li {
+    list-style-type: none;
+  }
+}
+
+
