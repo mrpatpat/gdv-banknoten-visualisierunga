@@ -12,10 +12,13 @@ export class CoinScatter {
     private svg;
     private xScale;
     private yScale;
+    private xAxis;
+    private yAxis;
 
     constructor(private selector: string, private data: CoinRow[] = []) {
 
         this.update = this.update.bind(this);
+        this.zoom = this.zoom.bind(this);
         DataService.data$.subscribe(data => this.update(data));
 
         // SVG
@@ -24,9 +27,7 @@ export class CoinScatter {
             .append("svg")
             .attr("width", CoinScatter.WIDTH + CoinScatter.MARGIN + CoinScatter.MARGIN)
             .attr("height", CoinScatter.HEIGHT + CoinScatter.MARGIN + CoinScatter.MARGIN)
-            .call(d3.zoom().on("zoom",  () => {
-                this.svg.attr("transform", d3.event.transform)
-            }))
+            .call(d3.zoom().on("zoom", this.zoom))
             .append("g")
             .attr("transform", "translate(" + CoinScatter.MARGIN + "," + CoinScatter.MARGIN + ")");
 
@@ -48,12 +49,13 @@ export class CoinScatter {
             }));
 
         //  Axis
-        this.svg.append("g")
+
+        this.xAxis = this.svg.append("g")
             .attr("transform", "translate(0," + CoinScatter.HEIGHT + ")")
             .attr("class", "x-axis")
             .call(d3.axisBottom(this.xScale));
 
-        this.svg.append("g")
+        this.yAxis = this.svg.append("g")
             .attr("class", "y-axis")
             .call(d3.axisLeft(this.yScale));
 
@@ -99,6 +101,25 @@ export class CoinScatter {
             .on("mouseover", DataService.hover)
             .on("mouseout", ()=>DataService.hover(null));
 
+    }
+
+    public zoom() {
+        // re-scale y axis during zoom; ref [2]
+        this.xAxis.call(d3.axisBottom(this.xScale).scale(d3.event.transform.rescaleX(this.xScale)));
+        this.yAxis.call(d3.axisLeft(this.yScale).scale(d3.event.transform.rescaleY(this.yScale)));
+
+        // re-draw circles using new y-axis scale; ref [3]
+        let new_yScale = d3.event.transform.rescaleY(this.yScale);
+        let new_xScale = d3.event.transform.rescaleX(this.xScale);
+
+        this.svg.select('.ref-line')
+            .attr('y1',new_yScale(1))
+            .attr('y2',new_yScale(1));
+
+        this.svg.selectAll("image")
+            .attr("y", function(d) { return new_yScale(+d.euro); })
+            .attr("x", function(d) { return new_xScale(+d.von); })
+            .attr("width", CoinScatter.DOT_WIDTH * d3.event.transform.k);
     }
 
     public async update(data: CoinRow[]) {
