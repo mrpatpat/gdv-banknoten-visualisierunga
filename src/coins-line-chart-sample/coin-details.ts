@@ -1,19 +1,29 @@
 import * as d3 from "d3";
 import {CoinRow} from "../service/csv-service";
+import {DataService} from "../service/data-service";
 
-export class CoinsLineChartSampleDetails {
-
-    private static ANIMATION_LENGTH_MS = 200;
+export class CoinDetails {
 
     private container;
 
-    constructor() {
+    constructor(selector: string) {
         this.setDetails = this.setDetails.bind(this);
         this.clearDetails = this.clearDetails.bind(this);
-    }
 
-    public render(selector: string) {
-        this.container = this.buildContainer(selector);
+        DataService.hovered$.subscribe((c)=>{
+           if(c){
+               this.setDetails(c);
+           } else {
+               this.clearDetails();
+           }
+        });
+
+        this.container = d3
+            .select(selector)
+            .append("div")
+            .attr("id", "coin-details")
+            .style("opacity", 0);
+
     }
 
     public setDetails(data: CoinRow) {
@@ -21,7 +31,7 @@ export class CoinsLineChartSampleDetails {
             this.container
                 .html(this.buildTooltipHtml(data))
                 .transition()
-                .duration(CoinsLineChartSampleDetails.ANIMATION_LENGTH_MS)
+                .duration(200)
                 .style("opacity", 1)
         }
     }
@@ -30,21 +40,13 @@ export class CoinsLineChartSampleDetails {
         if (this.container) {
             this.container
                 .transition()
-                .duration(CoinsLineChartSampleDetails.ANIMATION_LENGTH_MS)
+                .duration(200)
                 .style("opacity", 0);
         }
     }
 
-    private buildContainer(selector: string) {
-        return d3
-            .select(selector)
-            .append("div")
-            .attr("id", "coins-line-chart-sample-details")
-            .style("opacity", 0);
-    }
-
     private buildTooltipHtml(data: CoinRow) {
-        return "<h2>" + data.nominal + "</h2>" +
+        return "<h6>" + data.nominal + "</h6>" +
             "Erscheinungsjahr: " + data.von.getFullYear() + "<br>" +
             "Heutiger Wert: " + (data.euro * data.pfennig / 100) + "€" + " ("+data.euro+"€ pro Mark)" + "<br><br>" +
             "<img src='" + data.image + "'>";

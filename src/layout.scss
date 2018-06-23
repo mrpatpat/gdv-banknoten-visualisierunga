@@ -1,61 +1,13 @@
-* {
-  margin: 0;
-  padding: 0;
+.card {
+  margin-top:10px;
+
+  img {
+    max-width:100%;
+  }
+
 }
 
 #chart {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 800px;
   height: 600px;
-  float: left;
 }
-
-#list {
-  position: absolute;
-  top: 0;
-  left: 800px;
-  width: 300px;
-  max-height: 300px;
-  float: right;
-  overflow-y: scroll;
-
-  li {
-    list-style-type: none;
-  }
-
-}
-
-#details {
-  position: absolute;
-  top: 300px;
-  left: 800px;
-  width: 300px;
-  height: 300px;
-  float: right;
-
-  img {
-    max-height: 150px;
-    max-width: 300px;
-  }
-
-}
-
-
-#epoches {
-  position: absolute;
-  top: 600px;
-  left: 0px;
-  width: 300px;
-  height: 300px;
-  max-height: 300px;
-  float: right;
-  overflow-y: scroll;
-
-  li {
-    list-style-type: none;
-  }
-}
-
-
