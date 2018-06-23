@@ -5,7 +5,7 @@ import {DataService} from "../service/data-service";
 export class CoinScatter {
 
     private static MARGIN = 60;
-    private static WIDTH = 800 - 2* CoinScatter.MARGIN;
+    private static WIDTH = 980 - 2* CoinScatter.MARGIN;
     private static HEIGHT = 600 - 2* CoinScatter.MARGIN;
     private static DOT_WIDTH = 32;
 
@@ -24,10 +24,14 @@ export class CoinScatter {
             .append("svg")
             .attr("width", CoinScatter.WIDTH + CoinScatter.MARGIN + CoinScatter.MARGIN)
             .attr("height", CoinScatter.HEIGHT + CoinScatter.MARGIN + CoinScatter.MARGIN)
+            .call(d3.zoom().on("zoom",  () => {
+                this.svg.attr("transform", d3.event.transform)
+            }))
             .append("g")
             .attr("transform", "translate(" + CoinScatter.MARGIN + "," + CoinScatter.MARGIN + ")");
 
         // Scale methods
+
         this.xScale = d3
             .scaleTime()
             .range([0, CoinScatter.WIDTH])
@@ -84,7 +88,7 @@ export class CoinScatter {
             .data(data)
             .enter()
             .append('image')
-            .attr("xlink:href", d => d.thumb)
+            .attr("xlink:href", d => d.image)
             .attr("width", CoinScatter.DOT_WIDTH)
             .attr("x", (d: CoinRow) => {
                 return this.xScale(d.von);
@@ -134,7 +138,7 @@ export class CoinScatter {
         circle
             .enter()
             .append('image')
-            .attr("xlink:href", d => d.thumb)
+            .attr("xlink:href", d => d.image)
             .attr("width", CoinScatter.DOT_WIDTH)
             .on("mouseover", DataService.hover)
             .on("mouseout", ()=>DataService.hover(null))
