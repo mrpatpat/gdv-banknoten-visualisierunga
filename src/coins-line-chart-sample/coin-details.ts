@@ -48,7 +48,10 @@ export class CoinDetails {
     private buildTooltipHtml(data: CoinRow) {
         return "<h6>" + data.nominal + "</h6>" +
             "Erscheinungsjahr: " + data.von.getFullYear() + "<br>" +
-            "Heutiger Wert: " + (data.euro * data.pfennig / 100) + "€" + " ("+data.euro+"€ pro Mark)" + "<br><br>" +
+            "Heutiger Banknotenwert: " + (data.euro * data.pfennig / 100) + "€" + "<br>" +
+            "1 Mark" + " =" + " "+data.euro+"€" + "<br>" +
+            "Höhe:          " + data.hoehe+ "mm" + "<br>" +
+            "Breite:          " + data.breite+ "mm" + "<br><br>" +
             "<img src='" + data.image + "'>";
     }
 
