@@ -5,9 +5,9 @@ import {DataService} from "../service/data-service";
 export class CoinScatter {
 
     private static MARGIN = 60;
-    private static WIDTH = 980 - 2* CoinScatter.MARGIN;
-    private static HEIGHT = 600 - 2* CoinScatter.MARGIN;
-    private static DOT_WIDTH = 32;
+    private static WIDTH = 1370 - 2 * CoinScatter.MARGIN;
+    private static HEIGHT = 1010 - 2 * CoinScatter.MARGIN;
+    private static DOT_WIDTH = 128;
 
     private container;
     private xScale;
@@ -16,12 +16,17 @@ export class CoinScatter {
     private yAxis;
     private zoom;
 
+    private lastZoomK = 1;
+
     constructor(private selector: string, private data: CoinRow[] = []) {
 
         this.update = this.update.bind(this);
-        this.updateDomains= this.updateDomains.bind(this);
+        this.updateDomains = this.updateDomains.bind(this);
         this.onZoom = this.onZoom.bind(this);
+        this.highlight = this.highlight.bind(this);
+
         DataService.data$.subscribe(data => this.update(data));
+        DataService.hovered$.subscribe(data => this.highlight(data));
 
         this.container = this.initContainer(selector);
         this.xScale = this.initScaleX();
@@ -108,6 +113,8 @@ export class CoinScatter {
 
     public onZoom() {
 
+        this.lastZoomK = d3.event.transform.k;
+
         let new_yScale = d3.event.transform.rescaleY(this.yScale);
         let new_xScale = d3.event.transform.rescaleX(this.xScale);
 
@@ -115,12 +122,16 @@ export class CoinScatter {
         this.yAxis.call(d3.axisLeft(this.yScale).scale(new_yScale));
 
         this.container.select('.ref-line')
-            .attr('y1',new_yScale(1))
-            .attr('y2',new_yScale(1));
+            .attr('y1', new_yScale(1))
+            .attr('y2', new_yScale(1));
 
         this.container.selectAll("image")
-            .attr("y", function(d) { return new_yScale(+d.euro); })
-            .attr("x", function(d) { return new_xScale(+d.von); })
+            .attr("y", function (d) {
+                return new_yScale(+d.euro);
+            })
+            .attr("x", function (d) {
+                return new_xScale(+d.von);
+            })
             .attr("width", CoinScatter.DOT_WIDTH * d3.event.transform.k);
     }
 
@@ -137,10 +148,10 @@ export class CoinScatter {
         d3.select("svg")
             .transition()
             .duration(1000)
-            .call(this.zoom.translateTo, CoinScatter.WIDTH/2 + CoinScatter.MARGIN, CoinScatter.HEIGHT/2 + CoinScatter.MARGIN)
+            .call(this.zoom.translateTo, CoinScatter.WIDTH / 2 + CoinScatter.MARGIN, CoinScatter.HEIGHT / 2 + CoinScatter.MARGIN)
             .call(this.zoom.scaleTo, 1)
-            .on("end", ()=>{
-                this.zoom.transform(d3.select("svg"), d3.zoomIdentity.scale(1) );
+            .on("end", () => {
+                this.zoom.transform(d3.select("svg"), d3.zoomIdentity.scale(1));
             });
     }
 
@@ -151,9 +162,14 @@ export class CoinScatter {
             .enter()
             .append('image')
             .attr("xlink:href", d => d.thumb)
+            .attr("id", d => "image-"+d.id)
             .attr("width", CoinScatter.DOT_WIDTH)
-            .on("mouseover", DataService.hover)
-            .on("mouseout", () => DataService.hover(null))
+            .on("mouseover", (d) => {
+                DataService.hover(d);
+            })
+            .on("mouseout", () => {
+                DataService.hover(null);
+            })
             .transition()
             .duration(1000)
             .attr("x", (d: CoinRow) => {
@@ -164,6 +180,12 @@ export class CoinScatter {
             });
 
         dots
+            .on("mouseover", (d) => {
+                DataService.hover(d);
+            })
+            .on("mouseout", () => {
+                DataService.hover(null);
+            })
             .transition()
             .duration(1000)
             .attr("x", (d: CoinRow) => {
@@ -179,6 +201,20 @@ export class CoinScatter {
             .duration(1000)
             .attr("width", 0)
             .remove();
+    }
+
+    private highlight(data: CoinRow) {
+        if(data) {
+
+            this.container.selectAll("image").sort(function (a, b) {
+                if (a.id != data.id) return -1;
+                else return 1;
+            });
+
+            d3.select("#image-"+data.id).attr("width", CoinScatter.DOT_WIDTH * this.lastZoomK * 1.2);
+        } else {
+            d3.selectAll("image").attr("width", CoinScatter.DOT_WIDTH * this.lastZoomK);
+        }
     }
 
     private updateReferenceLine() {

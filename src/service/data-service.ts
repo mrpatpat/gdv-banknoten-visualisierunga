@@ -13,9 +13,6 @@ export class DataService {
     public static hovered$ = new Subject<CoinRow>();
 
     public static hover(data: CoinRow) {
-        console.log(
-            data
-        );
         DataService.hovered = data;
         DataService.hovered$.next(DataService.hovered);
     }
