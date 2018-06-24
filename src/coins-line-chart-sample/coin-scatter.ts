@@ -2,12 +2,20 @@ import * as d3 from "d3";
 import {CoinRow} from "../service/csv-service";
 import {DataService} from "../service/data-service";
 
+export interface CoinRowContainer {
+    x: Date,
+    y: number,
+    xJitter: number,
+    yJitter: number,
+    coinrow: CoinRow
+}
+
 export class CoinScatter {
 
     private static MARGIN = 60;
     private static WIDTH = 1370 - 2 * CoinScatter.MARGIN;
     private static HEIGHT = 1010 - 2 * CoinScatter.MARGIN;
-    private static DOT_WIDTH = 128;
+    public static DOT_WIDTH = 16;
 
     private container;
     private xScale;
@@ -80,7 +88,7 @@ export class CoinScatter {
         return this.container.append("g")
             .attr("transform", "translate(0," + CoinScatter.HEIGHT + ")")
             .attr("class", "x-axis")
-            .call(d3.axisBottom(this.xScale));
+            .call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%y")));
     }
 
     private initScaleY() {
@@ -127,10 +135,10 @@ export class CoinScatter {
 
         this.container.selectAll("image")
             .attr("y", function (d) {
-                return new_yScale(+d.euro);
+                return new_yScale(d.y) + d.yJitter * d3.event.transform.k;
             })
             .attr("x", function (d) {
-                return new_xScale(+d.von);
+                return new_xScale(d.x) + d.xJitter * d3.event.transform.k;
             })
             .attr("width", CoinScatter.DOT_WIDTH * d3.event.transform.k);
     }
@@ -156,43 +164,69 @@ export class CoinScatter {
     }
 
     private updateDots(data: CoinRow[]) {
-        let dots = this.container.selectAll("image").data(data);
+
+        let coinrowContainers: CoinRowContainer[] = [];
+
+        let jitterXFactorIndex = 0;
+        let jitterYFactorIndex = 0;
+        let jitter = () => {
+            let x = Math.sin(jitterXFactorIndex);
+            let y = Math.cos(jitterYFactorIndex);
+            jitterXFactorIndex += 0.5;
+            jitterYFactorIndex += 0.5;
+            return {
+                x: (x-0.5) * CoinScatter.DOT_WIDTH*5,
+                y: (y-0.5) * CoinScatter.DOT_WIDTH*0.4
+            };
+        };
+
+        data.forEach((d) => {
+            coinrowContainers.push({
+                x: d.von,
+                y: d.euro,
+                xJitter: jitter().x,
+                yJitter: jitter().y,
+                coinrow: d
+            })
+        });
+
+        let dots = this.container.selectAll("image").data(coinrowContainers);
 
         dots
             .enter()
             .append('image')
-            .attr("xlink:href", d => d.thumb)
-            .attr("id", d => "image-"+d.id)
+            .attr("xlink:href", d => d.coinrow.thumb)
+            .attr("id", d => "image-" + d.coinrow.id)
             .attr("width", CoinScatter.DOT_WIDTH)
             .on("mouseover", (d) => {
-                DataService.hover(d);
+                DataService.hover(d.coinrow);
             })
             .on("mouseout", () => {
                 DataService.hover(null);
             })
             .transition()
             .duration(1000)
-            .attr("x", (d: CoinRow) => {
-                return this.xScale(d.von);
+            .attr("x", (d: CoinRowContainer) => {
+                return this.xScale(d.x) + d.xJitter;
             })
-            .attr("y", (d: CoinRow) => {
-                return this.yScale(d.euro);
+            .attr("y", (d: CoinRowContainer) => {
+                return this.yScale(d.y) + d.yJitter;
             });
 
         dots
             .on("mouseover", (d) => {
-                DataService.hover(d);
+                DataService.hover(d.coinrow);
             })
             .on("mouseout", () => {
                 DataService.hover(null);
             })
             .transition()
             .duration(1000)
-            .attr("x", (d: CoinRow) => {
-                return this.xScale(d.von);
+            .attr("x", (d: CoinRowContainer) => {
+                return this.xScale(d.x) + d.xJitter;
             })
-            .attr("y", (d: CoinRow) => {
-                return this.yScale(d.euro);
+            .attr("y", (d: CoinRowContainer) => {
+                return this.yScale(d.y) + d.yJitter;
             });
 
         dots
@@ -201,17 +235,18 @@ export class CoinScatter {
             .duration(1000)
             .attr("width", 0)
             .remove();
+
     }
 
     private highlight(data: CoinRow) {
-        if(data) {
+        if (data) {
 
-            this.container.selectAll("image").sort(function (a, b) {
-                if (a.id != data.id) return -1;
-                else return 1;
-            });
+            //this.container.selectAll("image").sort(function (a, b) {
+            //    if (a.coinrow.id != data.id) return -1;
+            //    else return 1;
+            //});
 
-            d3.select("#image-"+data.id).attr("width", CoinScatter.DOT_WIDTH * this.lastZoomK * 1.2);
+            d3.select("#image-" + data.id).attr("width", CoinScatter.DOT_WIDTH * this.lastZoomK * 1.2);
         } else {
             d3.selectAll("image").attr("width", CoinScatter.DOT_WIDTH * this.lastZoomK);
         }
@@ -229,7 +264,7 @@ export class CoinScatter {
         this.container.select(".x-axis")
             .transition()
             .duration(1000)
-            .call(d3.axisBottom(this.xScale));
+            .call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%y")));
 
         this.container.select(".y-axis")
             .transition()
@@ -239,10 +274,10 @@ export class CoinScatter {
 
     private updateDomains(data: CoinRow[]) {
         this.xScale.domain(d3.extent(data, (d: CoinRow) => {
-            return +d.von
+            return d.von
         }));
         this.yScale.domain(d3.extent(data, (d: CoinRow) => {
-            return +d.euro
+            return d.euro
         }));
     }
 

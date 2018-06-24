@@ -1,5 +1,6 @@
 import {DSVParsedArray, DSVRowString} from "d3-dsv";
 import * as d3 from "d3";
+import {CoinScatter} from "../coins-line-chart-sample/coin-scatter";
 
 export interface CoinRow {
     id: string,
@@ -21,8 +22,8 @@ export class CsvService {
         return d3.isoParse(time);
     }
 
-    public static async getCoins(): Promise<DSVParsedArray<CoinRow>> {
-        return await d3.csvParse<CoinRow>(require("../assets/coins.csv"), (rawRow: DSVRowString) => {
+    public static async getCoins(): Promise<CoinRow[]> {
+        let parsed = await d3.csvParse<any>(require("../assets/coins.csv"), (rawRow: DSVRowString) => {
             return {
                 id: rawRow["id"],
                 name: rawRow["name"],
@@ -36,7 +37,9 @@ export class CsvService {
                 von: CsvService.parseTime(rawRow["von"]),
                 bis: CsvService.parseTime(rawRow["bis"])
             }
-        })
+        });
+
+        return parsed;
     }
 
 }
