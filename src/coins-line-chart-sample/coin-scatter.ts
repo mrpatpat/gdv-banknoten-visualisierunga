@@ -13,9 +13,9 @@ export class CoinScatter {
     private static MARGIN = 60;
     private static WIDTH = 1370 - 2 * CoinScatter.MARGIN;
     private static HEIGHT = 800 - 2 * CoinScatter.MARGIN;
-    public static DOT_RADIUS = 3;
+    public static DOT_RADIUS = 2;
     public static COIN_WIDTH = 8;
-    public static COIN_OFFSET = 4;
+    public static COIN_OFFSET = 1;
 
     private container;
     private xScale;
@@ -44,9 +44,19 @@ export class CoinScatter {
 
         this.initAxisLabels();
         this.initReferenceLine();
+        this.initGraph();
 
         this.updateDomains([]);
         this.update([]);
+
+    }
+
+    private initGraph() {
+        this.container.append("path")
+            .attr("class", "graph")
+            .style("fill", "none")
+            .style("stroke", "#c0b7b7a1")
+            .style("stroke-width", "2px");
 
     }
 
@@ -158,7 +168,7 @@ export class CoinScatter {
                 return new_xScale(d.dc.x) - CoinScatter.COIN_WIDTH/2* d3.event.transform.k;
             })
             .attr("y", (d) => {
-                return new_yScale(d.dc.y) + 3*CoinScatter.COIN_OFFSET * d3.event.transform.k + offsets[d.dc.x.getFullYear()+""][d.dc.y+""]++ * d3.event.transform.k *(CoinScatter.COIN_WIDTH);
+                return new_yScale(d.dc.y) + 5*CoinScatter.COIN_OFFSET * d3.event.transform.k + offsets[d.dc.x.getFullYear()+""][d.dc.y+""]++ * d3.event.transform.k *(CoinScatter.COIN_WIDTH);
             });
 
         this.container.selectAll("rect")
@@ -173,6 +183,8 @@ export class CoinScatter {
             .attr("y", (d: DataContainer) => {
                 return new_yScale(d.y) + CoinScatter.DOT_RADIUS* d3.event.transform.k  + CoinScatter.COIN_OFFSET*1.5* d3.event.transform.k ;
             });
+
+        this.container.selectAll(".graph").attr('transform', 'translate(' + d3.event.transform.x +','+ d3.event.transform.y + ') scale(' + d3.event.transform.k + ')');
 
     }
 
@@ -229,50 +241,6 @@ export class CoinScatter {
             });
         });
 
-        let dots = this.container.selectAll("circle").data(dataContainers);
-
-        dots
-            .enter()
-            .append('circle')
-            .attr("r", CoinScatter.DOT_RADIUS)
-            //.on("mouseover", (d) => {
-            //    DataService.hover(d.coinrow);
-            //})
-            //.on("mouseout", () => {
-            //    DataService.hover(null);
-            //})
-            .transition()
-            .duration(1000)
-            .attr("cx", (d: DataContainer) => {
-                return this.xScale(d.x);
-            })
-            .attr("cy", (d: DataContainer) => {
-                return this.yScale(d.y);
-            });
-
-        dots
-            //.on("mouseover", (d) => {
-            //    DataService.hover(d.coinrow);
-            //})
-            //.on("mouseout", () => {
-            //    DataService.hover(null);
-            //})
-            .transition()
-            .duration(1000)
-            .attr("cx", (d: DataContainer) => {
-                return this.xScale(d.x);
-            })
-            .attr("cy", (d: DataContainer) => {
-                return this.yScale(d.y);
-            });
-
-        dots
-            .exit()
-            .transition()
-            .duration(1000)
-            .attr("r", 0)
-            .remove();
-
         let rects = this.container.selectAll("rect").data(dataContainers);
 
         rects
@@ -293,7 +261,6 @@ export class CoinScatter {
             })
             .style("stroke", "#000000")
             .style("fill", "#efefef");
-
         rects
             .transition()
             .duration(1000)
@@ -302,11 +269,11 @@ export class CoinScatter {
             })
             .attr("y", (d: DataContainer) => {
                 return this.yScale(d.y) + CoinScatter.DOT_RADIUS + CoinScatter.COIN_OFFSET*1.5;
-            }).attr("height", (dc)=>{
+            })
+            .attr("height", (dc)=>{
                 let rows = dc.coinrows.length;
                 return rows * (CoinScatter.COIN_WIDTH ) + CoinScatter.COIN_OFFSET;
             });
-
         rects
             .exit()
             .transition()
@@ -314,6 +281,55 @@ export class CoinScatter {
             .attr("width", 0)
             .attr("height", 0)
             .remove();
+
+        let dots = this.container.selectAll("circle").data(dataContainers);
+
+        dots
+            .enter()
+            .append('circle')
+            .attr("r", CoinScatter.DOT_RADIUS)
+            .transition()
+            .duration(1000)
+            .attr("cx", (d: DataContainer) => {
+                return this.xScale(d.x);
+            })
+            .attr("cy", (d: DataContainer) => {
+                return this.yScale(d.y);
+            })
+            .style('stroke', '#000')
+            .style('fill', '#efefef')
+            .style('stroke-width', '1px');
+
+        dots
+            .transition()
+            .duration(1000)
+            .attr("cx", (d: DataContainer) => {
+                return this.xScale(d.x);
+            })
+            .attr("cy", (d: DataContainer) => {
+                return this.yScale(d.y);
+            });
+
+        dots
+            .exit()
+            .transition()
+            .duration(1000)
+            .attr("r", 0)
+            .remove();
+
+        let valueline = d3.line<DataContainer>()
+            .x((d) => { return this.xScale(d.x); })
+            .y((d) => { return this.yScale(d.y); })
+            .curve(d3.curveMonotoneX);
+
+        this.container.selectAll(".graph")
+            .data([dataContainers.sort((a,b)=>{
+                if(a.x.getFullYear()-b.x.getFullYear() === 0) {
+                    return b.y-a.y
+                }
+                return a.x.getFullYear()-b.x.getFullYear()
+            })])
+            .attr("d", valueline);
 
 
         let offsets = {};
@@ -326,7 +342,6 @@ export class CoinScatter {
         });
 
         let coins = this.container.selectAll("image").data(data);
-
 
         coins
             .enter()
@@ -346,8 +361,9 @@ export class CoinScatter {
                 return this.xScale(d.dc.x) - CoinScatter.COIN_WIDTH/2;
             })
             .attr("y", (d) => {
-                return this.yScale(d.dc.y) + 3*CoinScatter.COIN_OFFSET + offsets[d.dc.x.getFullYear()+""][d.dc.y+""]++ * (CoinScatter.COIN_WIDTH);
+                return this.yScale(d.dc.y) + 5*CoinScatter.COIN_OFFSET + offsets[d.dc.x.getFullYear()+""][d.dc.y+""]++ * (CoinScatter.COIN_WIDTH);
             });
+
 
         coins
             .on("mouseover", (d) => {
@@ -362,7 +378,7 @@ export class CoinScatter {
                 return this.xScale(d.dc.x) - CoinScatter.COIN_WIDTH/2;
             })
             .attr("y", (d) => {
-                return this.yScale(d.dc.y) + 3*CoinScatter.COIN_OFFSET + offsets[d.dc.x.getFullYear()+""][d.dc.y+""]++ * (CoinScatter.COIN_WIDTH);
+                return this.yScale(d.dc.y) + 5*CoinScatter.COIN_OFFSET + offsets[d.dc.x.getFullYear()+""][d.dc.y+""]++ * (CoinScatter.COIN_WIDTH);
             });
 
         coins
@@ -371,7 +387,6 @@ export class CoinScatter {
             .duration(1000)
             .attr("width", 0)
             .remove();
-
 
     }
 
