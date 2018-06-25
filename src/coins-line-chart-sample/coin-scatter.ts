@@ -14,8 +14,8 @@ export class CoinScatter {
 
     private static MARGIN = 60;
     private static WIDTH = 1370 - 2 * CoinScatter.MARGIN;
-    private static HEIGHT = 1010 - 2 * CoinScatter.MARGIN;
-    public static DOT_WIDTH = 16;
+    private static HEIGHT = 800 - 2 * CoinScatter.MARGIN;
+    public static DOT_WIDTH = 5;
 
     private container;
     private xScale;
@@ -59,6 +59,7 @@ export class CoinScatter {
             .attr('y1', this.yScale(1))
             .attr('x2', CoinScatter.WIDTH)
             .attr('y2', this.yScale(1));
+
     }
 
     private initAxisLabels() {
@@ -169,14 +170,24 @@ export class CoinScatter {
 
         let jitterXFactorIndex = 0;
         let jitterYFactorIndex = 0;
-        let jitter = () => {
+        let jitterXCycleIndex = 0;
+        let jitterYCycleIndex = 0;
+        let lastYear = 1874;
+        let jitter = (year) => {
             let x = Math.sin(jitterXFactorIndex);
             let y = Math.cos(jitterYFactorIndex);
-            jitterXFactorIndex += 0.5;
+            jitterXFactorIndex += 0.4;
             jitterYFactorIndex += 0.5;
+            if(year === lastYear) {
+                jitterXCycleIndex = 0;
+                jitterYCycleIndex = 0;
+            }
+            let jitterXCycle = jitterXCycleIndex++ % Math.PI;
+            let jitterYCycle = jitterXCycleIndex++ % Math.PI;
+            lastYear = year;
             return {
-                x: (x-0.5) * CoinScatter.DOT_WIDTH*5,
-                y: (y-0.5) * CoinScatter.DOT_WIDTH*0.4
+                x: (x-0.5) * CoinScatter.DOT_WIDTH * 1.4 + (x-0.5) * jitterXCycle * CoinScatter.DOT_WIDTH * 0.7,
+                y: (y-0.5) * CoinScatter.DOT_WIDTH * 0.5 + (y-0.5) * jitterYCycle * CoinScatter.DOT_WIDTH * 1
             };
         };
 
@@ -184,8 +195,8 @@ export class CoinScatter {
             coinrowContainers.push({
                 x: d.von,
                 y: d.euro,
-                xJitter: jitter().x,
-                yJitter: jitter().y,
+                xJitter: jitter(d.von.getFullYear()).x,
+                yJitter: jitter(d.von.getFullYear()).y,
                 coinrow: d
             })
         });
