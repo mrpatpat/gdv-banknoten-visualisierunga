@@ -2,12 +2,10 @@ import * as d3 from "d3";
 import {CoinRow} from "../service/csv-service";
 import {DataService} from "../service/data-service";
 
-export interface CoinRowContainer {
+export interface DataContainer {
     x: Date,
     y: number,
-    xJitter: number,
-    yJitter: number,
-    coinrow: CoinRow
+    coinrows: CoinRow[]
 }
 
 export class CoinScatter {
@@ -15,7 +13,9 @@ export class CoinScatter {
     private static MARGIN = 60;
     private static WIDTH = 1370 - 2 * CoinScatter.MARGIN;
     private static HEIGHT = 800 - 2 * CoinScatter.MARGIN;
-    public static DOT_WIDTH = 5;
+    public static DOT_RADIUS = 3;
+    public static COIN_WIDTH = 8;
+    public static COIN_OFFSET = 4;
 
     private container;
     private xScale;
@@ -134,14 +134,46 @@ export class CoinScatter {
             .attr('y1', new_yScale(1))
             .attr('y2', new_yScale(1));
 
+        this.container.selectAll("circle")
+            .attr("cy", function (d) {
+                return new_yScale(d.y);
+            })
+            .attr("cx", function (d) {
+                return new_xScale(d.x);
+            })
+            .attr("r", CoinScatter.DOT_RADIUS * d3.event.transform.k);
+
+        let offsets = {};
+
+        this.container.selectAll("circle").select((dc)=>{
+            if(!offsets[dc.x.getFullYear()+""]) {
+                offsets[dc.x.getFullYear() + ""] = {};
+            }
+            offsets[dc.x.getFullYear()+""][dc.y+""] = 0;
+        });
+
         this.container.selectAll("image")
-            .attr("y", function (d) {
-                return new_yScale(d.y) + d.yJitter * d3.event.transform.k;
+            .attr("width", CoinScatter.COIN_WIDTH * d3.event.transform.k)
+            .attr("x", (d) => {
+                return new_xScale(d.dc.x) - CoinScatter.COIN_WIDTH/2* d3.event.transform.k;
             })
-            .attr("x", function (d) {
-                return new_xScale(d.x) + d.xJitter * d3.event.transform.k;
+            .attr("y", (d) => {
+                return new_yScale(d.dc.y) + 3*CoinScatter.COIN_OFFSET * d3.event.transform.k + offsets[d.dc.x.getFullYear()+""][d.dc.y+""]++ * d3.event.transform.k *(CoinScatter.COIN_WIDTH);
+            });
+
+        this.container.selectAll("rect")
+            .attr("width", CoinScatter.COIN_OFFSET * d3.event.transform.k + CoinScatter.COIN_WIDTH* d3.event.transform.k )
+            .attr("height", (dc)=>{
+                let rows = dc.coinrows.length;
+                return rows * (CoinScatter.COIN_WIDTH)* d3.event.transform.k  + CoinScatter.COIN_OFFSET* d3.event.transform.k ;
             })
-            .attr("width", CoinScatter.DOT_WIDTH * d3.event.transform.k);
+            .attr("x", (d: DataContainer) => {
+                return new_xScale(d.x) - CoinScatter.COIN_OFFSET/2* d3.event.transform.k  - CoinScatter.COIN_WIDTH/2* d3.event.transform.k ;
+            })
+            .attr("y", (d: DataContainer) => {
+                return new_yScale(d.y) + CoinScatter.DOT_RADIUS* d3.event.transform.k  + CoinScatter.COIN_OFFSET*1.5* d3.event.transform.k ;
+            });
+
     }
 
     public async update(data: CoinRow[]) {
@@ -166,86 +198,180 @@ export class CoinScatter {
 
     private updateDots(data: CoinRow[]) {
 
-        let coinrowContainers: CoinRowContainer[] = [];
+        let dataContainers: DataContainer[] = [];
 
-        let jitterXFactorIndex = 0;
-        let jitterYFactorIndex = 0;
-        let jitterXCycleIndex = 0;
-        let jitterYCycleIndex = 0;
-        let lastYear = 1874;
-        let jitter = (year) => {
-            let x = Math.sin(jitterXFactorIndex);
-            let y = Math.cos(jitterYFactorIndex);
-            jitterXFactorIndex += 0.4;
-            jitterYFactorIndex += 0.5;
-            if(year === lastYear) {
-                jitterXCycleIndex = 0;
-                jitterYCycleIndex = 0;
-            }
-            let jitterXCycle = jitterXCycleIndex++ % Math.PI;
-            let jitterYCycle = jitterXCycleIndex++ % Math.PI;
-            lastYear = year;
-            return {
-                x: (x-0.5) * CoinScatter.DOT_WIDTH * 1.4 + (x-0.5) * jitterXCycle * CoinScatter.DOT_WIDTH * 0.7,
-                y: (y-0.5) * CoinScatter.DOT_WIDTH * 0.5 + (y-0.5) * jitterYCycle * CoinScatter.DOT_WIDTH * 1
-            };
-        };
-
+        // build all combinations by euro/year
         data.forEach((d) => {
-            coinrowContainers.push({
-                x: d.von,
-                y: d.euro,
-                xJitter: jitter(d.von.getFullYear()).x,
-                yJitter: jitter(d.von.getFullYear()).y,
-                coinrow: d
-            })
+            let year = d.von;
+            let euro = d.euro;
+            let currDc = {
+                x: year,
+                y: euro,
+                coinrows: []
+            };
+            dataContainers.push(currDc);
         });
 
-        let dots = this.container.selectAll("image").data(coinrowContainers);
+        // remove duplicates
+        dataContainers = dataContainers.filter((obj, pos, arr) => {
+           return arr.map(mapObj => mapObj["x"].getFullYear() + mapObj["y"]).indexOf(obj["x"].getFullYear() + obj["y"]) === pos;
+        });
+
+        // add into its container
+        data.forEach((d) => {
+            let year = d.von;
+            let euro = d.euro;
+            dataContainers.forEach((dc)=>{
+               if(year.getFullYear() === dc.x.getFullYear() && euro === dc.y){
+                   d.dc = dc;
+                   dc.coinrows.push(d);
+               }
+            });
+        });
+
+        let dots = this.container.selectAll("circle").data(dataContainers);
 
         dots
             .enter()
-            .append('image')
-            .attr("xlink:href", d => d.coinrow.thumb)
-            .attr("id", d => "image-" + d.coinrow.id)
-            .attr("width", CoinScatter.DOT_WIDTH)
-            .on("mouseover", (d) => {
-                DataService.hover(d.coinrow);
-            })
-            .on("mouseout", () => {
-                DataService.hover(null);
-            })
+            .append('circle')
+            .attr("r", CoinScatter.DOT_RADIUS)
+            //.on("mouseover", (d) => {
+            //    DataService.hover(d.coinrow);
+            //})
+            //.on("mouseout", () => {
+            //    DataService.hover(null);
+            //})
             .transition()
             .duration(1000)
-            .attr("x", (d: CoinRowContainer) => {
-                return this.xScale(d.x) + d.xJitter;
+            .attr("cx", (d: DataContainer) => {
+                return this.xScale(d.x);
             })
-            .attr("y", (d: CoinRowContainer) => {
-                return this.yScale(d.y) + d.yJitter;
+            .attr("cy", (d: DataContainer) => {
+                return this.yScale(d.y);
             });
 
         dots
-            .on("mouseover", (d) => {
-                DataService.hover(d.coinrow);
-            })
-            .on("mouseout", () => {
-                DataService.hover(null);
-            })
+            //.on("mouseover", (d) => {
+            //    DataService.hover(d.coinrow);
+            //})
+            //.on("mouseout", () => {
+            //    DataService.hover(null);
+            //})
             .transition()
             .duration(1000)
-            .attr("x", (d: CoinRowContainer) => {
-                return this.xScale(d.x) + d.xJitter;
+            .attr("cx", (d: DataContainer) => {
+                return this.xScale(d.x);
             })
-            .attr("y", (d: CoinRowContainer) => {
-                return this.yScale(d.y) + d.yJitter;
+            .attr("cy", (d: DataContainer) => {
+                return this.yScale(d.y);
             });
 
         dots
             .exit()
             .transition()
             .duration(1000)
+            .attr("r", 0)
+            .remove();
+
+        let rects = this.container.selectAll("rect").data(dataContainers);
+
+        rects
+            .enter()
+            .append('rect')
+            .attr("width", CoinScatter.COIN_OFFSET + CoinScatter.COIN_WIDTH)
+            .attr("height", (dc)=>{
+                let rows = dc.coinrows.length;
+                return rows * (CoinScatter.COIN_WIDTH ) + CoinScatter.COIN_OFFSET;
+            })
+            .transition()
+            .duration(1000)
+            .attr("x", (d: DataContainer) => {
+                return this.xScale(d.x) - CoinScatter.COIN_OFFSET/2 - CoinScatter.COIN_WIDTH/2;
+            })
+            .attr("y", (d: DataContainer) => {
+                return this.yScale(d.y) + CoinScatter.DOT_RADIUS + CoinScatter.COIN_OFFSET*1.5;
+            })
+            .style("stroke", "#000000")
+            .style("fill", "#efefef");
+
+        rects
+            .transition()
+            .duration(1000)
+            .attr("x", (d: DataContainer) => {
+                return this.xScale(d.x) - CoinScatter.COIN_OFFSET/2 - CoinScatter.COIN_WIDTH/2;
+            })
+            .attr("y", (d: DataContainer) => {
+                return this.yScale(d.y) + CoinScatter.DOT_RADIUS + CoinScatter.COIN_OFFSET*1.5;
+            }).attr("height", (dc)=>{
+                let rows = dc.coinrows.length;
+                return rows * (CoinScatter.COIN_WIDTH ) + CoinScatter.COIN_OFFSET;
+            });
+
+        rects
+            .exit()
+            .transition()
+            .duration(1000)
+            .attr("width", 0)
+            .attr("height", 0)
+            .remove();
+
+
+        let offsets = {};
+
+        dataContainers.forEach((dc)=>{
+            if(!offsets[dc.x.getFullYear()+""]) {
+                offsets[dc.x.getFullYear() + ""] = {};
+            }
+            offsets[dc.x.getFullYear()+""][dc.y+""] = 0;
+        });
+
+        let coins = this.container.selectAll("image").data(data);
+
+
+        coins
+            .enter()
+            .append('image')
+            .attr("xlink:href", d => d.thumb)
+            .attr("id", d => "image-" + d.id)
+            .attr("width", CoinScatter.COIN_WIDTH)
+            .on("mouseover", (d) => {
+                DataService.hover(d);
+            })
+            .on("mouseout", () => {
+                DataService.hover(null);
+            })
+            .transition()
+            .duration(1000)
+            .attr("x", (d) => {
+                return this.xScale(d.dc.x) - CoinScatter.COIN_WIDTH/2;
+            })
+            .attr("y", (d) => {
+                return this.yScale(d.dc.y) + 3*CoinScatter.COIN_OFFSET + offsets[d.dc.x.getFullYear()+""][d.dc.y+""]++ * (CoinScatter.COIN_WIDTH);
+            });
+
+        coins
+            .on("mouseover", (d) => {
+                DataService.hover(d);
+            })
+            .on("mouseout", () => {
+                DataService.hover(null);
+            })
+            .transition()
+            .duration(1000)
+            .attr("x", (d) => {
+                return this.xScale(d.dc.x) - CoinScatter.COIN_WIDTH/2;
+            })
+            .attr("y", (d) => {
+                return this.yScale(d.dc.y) + 3*CoinScatter.COIN_OFFSET + offsets[d.dc.x.getFullYear()+""][d.dc.y+""]++ * (CoinScatter.COIN_WIDTH);
+            });
+
+        coins
+            .exit()
+            .transition()
+            .duration(1000)
             .attr("width", 0)
             .remove();
+
 
     }
 
@@ -257,9 +383,9 @@ export class CoinScatter {
             //    else return 1;
             //});
 
-            d3.select("#image-" + data.id).attr("width", CoinScatter.DOT_WIDTH * this.lastZoomK * 1.2);
+            d3.select("#image-" + data.id).attr("width", CoinScatter.COIN_WIDTH * this.lastZoomK * 1.2);
         } else {
-            d3.selectAll("image").attr("width", CoinScatter.DOT_WIDTH * this.lastZoomK);
+            d3.selectAll("image").attr("width", CoinScatter.COIN_WIDTH * this.lastZoomK);
         }
     }
 

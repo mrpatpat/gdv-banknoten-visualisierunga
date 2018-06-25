@@ -1,6 +1,6 @@
 import {DSVParsedArray, DSVRowString} from "d3-dsv";
 import * as d3 from "d3";
-import {CoinScatter} from "../coins-line-chart-sample/coin-scatter";
+import {CoinScatter, DataContainer} from "../coins-line-chart-sample/coin-scatter";
 
 export interface CoinRow {
     id: string,
@@ -13,7 +13,8 @@ export interface CoinRow {
     image: string,
     euro: number,
     von: Date,
-    bis: Date
+    bis: Date,
+    dc?: DataContainer
 }
 
 export class CsvService {
