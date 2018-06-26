@@ -70,7 +70,7 @@ export class EpocheFilter {
             builder
                 .append("a")
                 .attr("class", "epoche-link")
-                .attr("id", "epoche-link-"+e.name)
+                .attr("id", "epoche-link-"+e.name.replace(" ",""))
                 .html(e.name)
                 .on("click", ()=>{
                     DataService.filterByTime(e.from, e.to);
@@ -87,7 +87,7 @@ export class EpocheFilter {
         this.container.selectAll(".epoche-link").classed("highlight", false);
         EpocheFilter.EPOCHES.forEach((e)=>{
             if(e.from === from && e.to === to) {
-                this.container.select("#epoche-link-"+e.name).classed("highlight", true);
+                this.container.select("#epoche-link-"+e.name.replace(" ","")).classed("highlight", true);
             }
         });
     }
