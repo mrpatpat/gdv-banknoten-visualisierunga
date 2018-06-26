@@ -46,7 +46,7 @@ export class EpocheFilter {
             },
             step: 1,
             tooltips: true,
-
+            behaviour: "drag",
             format: {
                 to: function ( value ) {
                     return Math.trunc(value);
