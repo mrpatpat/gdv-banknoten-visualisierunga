@@ -12,6 +12,38 @@ export class Axis {
 
         this.axisContainer = this.container.append("g").attr("id", "axis-container");
 
+        this.axisContainer
+            .append("rect")
+            .attr("class", "hiding-box")
+            .attr("y", -CoinScatter.MARGIN)
+            .attr("x", -CoinScatter.MARGIN)
+            .attr("width", CoinScatter.MARGIN)
+            .attr("height", CoinScatter.HEIGHT + 2* CoinScatter.MARGIN);
+
+        //this.axisContainer
+        //    .append("rect")
+        //    .attr("class", "hiding-box")
+        //    .attr("y", -CoinScatter.MARGIN)
+        //    .attr("x", CoinScatter.WIDTH)
+        //    .attr("width", CoinScatter.MARGIN)
+        //    .attr("height", CoinScatter.HEIGHT + 2* CoinScatter.MARGIN);
+
+        this.axisContainer
+            .append("rect")
+            .attr("class", "hiding-box")
+            .attr("y", CoinScatter.HEIGHT)
+            .attr("x", -CoinScatter.MARGIN)
+            .attr("width", CoinScatter.WIDTH + 2* CoinScatter.MARGIN)
+            .attr("height", CoinScatter.MARGIN);
+
+        //this.axisContainer
+        //    .append("rect")
+        //    .attr("class", "hiding-box")
+        //    .attr("y", -CoinScatter.MARGIN)
+        //    .attr("x", -CoinScatter.MARGIN)
+        //    .attr("width", CoinScatter.WIDTH + 2* CoinScatter.MARGIN)
+        //    .attr("height", CoinScatter.MARGIN);
+
         this.axisContainer.append("text")
             .attr("class", "axis-label")
             .attr("x", CoinScatter.WIDTH / 2)

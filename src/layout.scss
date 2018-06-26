@@ -37,6 +37,10 @@ body {
   stroke-width: 2px;
 }
 
+.ref-line-label {
+  fill: #900;
+}
+
 .axis-label {
   fill: #777;
 }
@@ -52,4 +56,12 @@ body {
     fill: #777;
   }
 
+}
+
+.hiding-box {
+  fill: #dfdede;
+}
+
+.circle-label {
+  fill: #777;
 }

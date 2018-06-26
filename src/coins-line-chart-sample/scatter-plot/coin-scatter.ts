@@ -7,6 +7,7 @@ import {ValueGraph} from "./value-graph";
 import {Circles} from "./circles";
 import {Coins} from "./coins";
 import {CoinBoxes} from "./coin-boxes";
+import {CircleLabels} from "./circle-labels";
 
 export interface DataContainer {
     x: Date,
@@ -16,7 +17,7 @@ export interface DataContainer {
 
 export class CoinScatter {
 
-    public static MARGIN = 60;
+    public static MARGIN = 55;
     public static WIDTH = 1370 - 2 * CoinScatter.MARGIN;
     public static HEIGHT = 800 - 2 * CoinScatter.MARGIN;
     public static DOT_RADIUS = 2;
@@ -34,6 +35,7 @@ export class CoinScatter {
     private circles: Circles;
     private coins: Coins;
     private coinBoxes: CoinBoxes;
+    private circleLabels: CircleLabels;
 
     constructor(private selector: string, private data: CoinRow[] = []) {
 
@@ -52,6 +54,7 @@ export class CoinScatter {
         this.euroReferenceLine = new EuroReferenceLine(this.container, this.yScale);
         this.valueGraph = new ValueGraph(this.container);
         this.circles = new Circles(this.container);
+        this.circleLabels = new CircleLabels(this.container);
         this.coinBoxes = new CoinBoxes(this.container);
         this.coins = new Coins(this.container);
         this.axis = new Axis(this.container, this.xScale, this.yScale);
@@ -71,6 +74,7 @@ export class CoinScatter {
         this.axis.onZoom(this.xScale, this.yScale, new_xScale, new_yScale);
         this.euroReferenceLine.onZoom(new_yScale);
         this.circles.onZoom(d3.event, new_xScale, new_yScale);
+        this.circleLabels.onZoom(d3.event, new_xScale, new_yScale);
         this.coins.onZoom(d3.event, new_xScale, new_yScale);
         this.coinBoxes.onZoom(d3.event, new_xScale, new_yScale);
         this.valueGraph.onZoom(d3.event);
@@ -84,16 +88,17 @@ export class CoinScatter {
         let dataContainers = this.buildCombinedDataContainers(data);
         this.coinBoxes.onUpdate(dataContainers, this.xScale, this.yScale);
         this.circles.onUpdate(dataContainers, this.xScale, this.yScale);
+        this.circleLabels.onUpdate(dataContainers, this.xScale, this.yScale);
         this.valueGraph.onUpdate(dataContainers, this.xScale, this.yScale);
         this.coins.onUpdate(dataContainers, data, this.xScale, this.yScale);
     }
 
     private initScaleY() {
-        return d3.scaleLog().base(10).range([CoinScatter.HEIGHT, 0]);
+        return d3.scaleLog().base(10).range([CoinScatter.HEIGHT - 10, 0 - CoinScatter.MARGIN]);
     }
 
     private initScaleX() {
-        return d3.scaleTime().range([0, CoinScatter.WIDTH]);
+        return d3.scaleTime().range([10, CoinScatter.WIDTH + CoinScatter.MARGIN]);
     }
 
     private initContainer(selector: string) {
@@ -115,7 +120,7 @@ export class CoinScatter {
         d3.select("svg")
             .transition()
             .duration(1000)
-            .call(this.zoom.translateTo, CoinScatter.WIDTH / 2 + CoinScatter.MARGIN, CoinScatter.HEIGHT / 2 + CoinScatter.MARGIN)
+            .call(this.zoom.translateTo, CoinScatter.WIDTH / 2 + CoinScatter.MARGIN + 200, CoinScatter.HEIGHT / 2 + CoinScatter.MARGIN)
             .call(this.zoom.scaleTo, 1)
             .on("end", () => {
                 this.zoom.transform(d3.select("svg"), d3.zoomIdentity.scale(1));
