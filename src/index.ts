@@ -1,4 +1,4 @@
-import {CoinScatter} from "./coins-line-chart-sample/coin-scatter";
+import {CoinScatter} from "./coins-line-chart-sample/scatter-plot/coin-scatter";
 import "./layout.scss";
 import {CsvService} from "./service/csv-service";
 import {DataService} from "./service/data-service";

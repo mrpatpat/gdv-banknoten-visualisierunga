@@ -1,5 +1,5 @@
 body {
-  background-color: #c0b7b7a1;
+  background-color: #c0b7b7;
 }
 
 .card {
@@ -9,6 +9,47 @@ body {
 
   img {
     max-width:100%;
+  }
+
+}
+
+.coin-box {
+  fill: #efefef;
+  stroke: #c0b7b7;
+  stroke-width: 2px;
+  opacity: 0.8;
+}
+
+.circle {
+  fill: #efefef;
+  stroke: #c0b7b7;
+  stroke-width: 2px;
+}
+
+.graph {
+  fill: none;
+  stroke: #c0b7b7;
+  stroke-width: 2px;
+}
+
+.ref-line {
+  stroke: #900;
+  stroke-width: 2px;
+}
+
+.axis-label {
+  fill: #777;
+}
+
+.x-axis, .y-axis {
+
+  line,path {
+    stroke: #c0b7b7;
+    stroke-width: 2px;
+  }
+
+  text {
+    fill: #777;
   }
 
 }
