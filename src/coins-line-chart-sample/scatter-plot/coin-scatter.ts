@@ -23,6 +23,7 @@ export class CoinScatter {
     public static DOT_RADIUS = 2;
     public static COIN_WIDTH = 8;
     public static COIN_OFFSET = 1;
+    public static ANIMATION_MS = 100;
 
     private container;
     private xScale;
@@ -119,7 +120,7 @@ export class CoinScatter {
     private resetZoom() {
         d3.select("svg")
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .call(this.zoom.translateTo, CoinScatter.WIDTH / 2 + CoinScatter.MARGIN + 200, CoinScatter.HEIGHT / 2 + CoinScatter.MARGIN)
             .call(this.zoom.scaleTo, 1)
             .on("end", () => {

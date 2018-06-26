@@ -82,12 +82,12 @@ export class Axis {
     public onUpdate(xScale, yScale) {
         this.axisContainer.select(".x-axis")
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%y")));
 
         this.axisContainer.select(".y-axis")
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .call(d3.axisLeft(yScale));
     }
 

@@ -41,12 +41,12 @@ export class CoinBoxes {
                 this.hover$.next(null);
             })
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("x", rectXFn)
             .attr("y", rectYFn);
         rects
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("x", rectXFn)
             .attr("y", rectYFn)
             .attr("width", CoinScatter.COIN_OFFSET + CoinScatter.COIN_WIDTH)
@@ -54,7 +54,7 @@ export class CoinBoxes {
         rects
             .exit()
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("width", 0)
             .attr("height", 0)
             .remove();

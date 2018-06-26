@@ -1,3 +1,5 @@
+@import "~nouislider/distribute/nouislider.css";
+
 body {
   background-color: #c0b7b7;
 }
@@ -11,6 +13,28 @@ body {
     max-width:100%;
   }
 
+}
+
+#epoche-buttons {
+  text-align: center;
+  a {
+     margin: 5px;
+     padding: 5px;
+    border-radius: 3px;
+  }
+  a:hover, a.highlight {
+    background-color: #c0b7b7;
+  }
+}
+
+
+#time-filter {
+  margin: 20px;
+  margin-top: 60px;
+
+  .noUi-connect {
+    background-color: #c0b7b7;
+  }
 }
 
 .coin-box {

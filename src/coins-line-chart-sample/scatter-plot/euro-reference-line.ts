@@ -36,13 +36,13 @@ export class EuroReferenceLine {
     public onUpdate(yScale) {
         this.refLineContainer.select('.ref-line')
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr('y1', yScale(1))
             .attr('y2', yScale(1));
 
         this.refLineContainer.select(".ref-line-label")
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("y",  yScale(1));
     }
 

@@ -52,7 +52,7 @@ export class Coins {
                 this.hover$.next(null);
             })
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("x", coinsXFn)
             .attr("y", coinsYFn);
 
@@ -68,14 +68,14 @@ export class Coins {
                 this.hover$.next(null);
             })
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("x", coinsXFn)
             .attr("y", coinsYFn);
 
         coins
             .exit()
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("width", 0)
             .remove();
     }

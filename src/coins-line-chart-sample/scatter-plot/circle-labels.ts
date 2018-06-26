@@ -25,13 +25,13 @@ export class CircleLabels {
             .attr("class", "circle-label")
             .text((dc)=>dc.y + "€")
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("transform", (d) => this.transformFn(d, xScale, yScale));
 
 
         dots
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .text((dc)=>dc.y + "€")
             .attr("transform", (d) => this.transformFn(d, xScale, yScale));
 
@@ -40,7 +40,7 @@ export class CircleLabels {
         dots
             .exit()
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .style("opacity",0)
             .remove();
     }

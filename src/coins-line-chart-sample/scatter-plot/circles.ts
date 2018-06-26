@@ -16,7 +16,7 @@ export class Circles {
             .attr("class", "circle")
             .attr("r", CoinScatter.DOT_RADIUS)
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("cx", (d: DataContainer) => {
                 return xScale(d.x);
             })
@@ -26,7 +26,7 @@ export class Circles {
 
         dots
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("cx", (d: DataContainer) => {
                 return xScale(d.x);
             })
@@ -37,7 +37,7 @@ export class Circles {
         dots
             .exit()
             .transition()
-            .duration(1000)
+            .duration(CoinScatter.ANIMATION_MS)
             .attr("r", 0)
             .remove();
     }
