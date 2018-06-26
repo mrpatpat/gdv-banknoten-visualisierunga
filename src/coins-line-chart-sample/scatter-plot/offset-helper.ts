@@ -14,6 +14,20 @@ export class OffsetHelper {
         return this.offsets[dataContainer.x.getFullYear()+""][dataContainer.y+""]++;
     }
 
+    public has(dataContainer) {
+
+        if(!(dataContainer && dataContainer.x)) {
+            return false;
+        }
+
+        if(this.offsets.hasOwnProperty(dataContainer.x.getFullYear()+"")
+        && this.offsets[dataContainer.x.getFullYear()+""].hasOwnProperty(dataContainer.y+"")){
+            return true;
+        }
+
+        return false;
+    }
+
     public initOffsets(dataContainers) {
         let fn =  (dc) => {
             if (!this.offsets[dc.x.getFullYear() + ""]) {

@@ -11,6 +11,7 @@ export class Coins {
     public hover$ = new Subject<CoinRow>();
 
     private coinContainer;
+    private lastDataContainers: DataContainer[];
 
     constructor(private container) {
         this.coinContainer = this.container.append("g").attr("id", "coins-container");
@@ -25,6 +26,7 @@ export class Coins {
     }
 
     public onUpdate(dataContainers: DataContainer[], data: CoinRow[], xScale, yScale) {
+        this.lastDataContainers = dataContainers;
         let offsetHelper = new OffsetHelper(dataContainers);
 
         let coins = this.coinContainer.selectAll("image").data(data);
@@ -56,6 +58,9 @@ export class Coins {
 
 
         coins
+            .attr("xlink:href", d => d.thumb)
+            .attr("id", d => "image-" + d.id)
+            .attr("width", CoinScatter.COIN_WIDTH)
             .on("mouseover", (d) => {
                 this.hover$.next(d);
             })
@@ -79,9 +84,10 @@ export class Coins {
 
         this.lastZoomK = zoomEvent.transform.k;
 
-        let offsetHelper = new OffsetHelper(this.container.selectAll("circle"));
+        let offsetHelper = new OffsetHelper(this.lastDataContainers);
 
         this.coinContainer.selectAll("image")
+            .filter(function (d) { return offsetHelper.has(d.dc); })
             .attr("width", CoinScatter.COIN_WIDTH * zoomEvent.transform.k)
             .attr("x", (d) => {
                 return new_xScale(d.dc.x) - CoinScatter.COIN_WIDTH/2* zoomEvent.transform.k;
