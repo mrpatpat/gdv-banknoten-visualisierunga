@@ -1,7 +1,6 @@
 import {CoinScatter, DataContainer} from "./coin-scatter";
 import {OffsetHelper} from "./offset-helper";
 import {CoinRow} from "../../service/csv-service";
-import {DataService} from "../../service/data-service";
 import * as d3 from "d3";
 import {Subject} from "rxjs/index";
 
@@ -11,8 +10,10 @@ export class Coins {
 
     public hover$ = new Subject<CoinRow>();
 
-    constructor(private container) {
+    private coinContainer;
 
+    constructor(private container) {
+        this.coinContainer = this.container.append("g").attr("id", "coins-container");
     }
 
     public onHighlight(data: CoinRow) {
@@ -26,7 +27,7 @@ export class Coins {
     public onUpdate(dataContainers: DataContainer[], data: CoinRow[], xScale, yScale) {
         let offsetHelper = new OffsetHelper(dataContainers);
 
-        let coins = this.container.selectAll("image").data(data);
+        let coins = this.coinContainer.selectAll("image").data(data);
 
         let coinsYFn = (d) => {
             return yScale(d.dc.y) + 5*CoinScatter.COIN_OFFSET + offsetHelper.getOffset(d.dc) * (CoinScatter.COIN_WIDTH);
@@ -80,7 +81,7 @@ export class Coins {
 
         let offsetHelper = new OffsetHelper(this.container.selectAll("circle"));
 
-        this.container.selectAll("image")
+        this.coinContainer.selectAll("image")
             .attr("width", CoinScatter.COIN_WIDTH * zoomEvent.transform.k)
             .attr("x", (d) => {
                 return new_xScale(d.dc.x) - CoinScatter.COIN_WIDTH/2* zoomEvent.transform.k;

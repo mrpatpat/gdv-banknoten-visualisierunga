@@ -1,12 +1,14 @@
 import {CoinScatter, DataContainer} from "./coin-scatter";
 export class Circles {
 
-    constructor(private container) {
+    private circleContainer;
 
+    constructor(private container) {
+        this.circleContainer = this.container.append("g").attr("id", "circle-container");
     }
 
     public onUpdate(dataContainers: DataContainer[], xScale, yScale) {
-        let dots = this.container.selectAll("circle").data(dataContainers);
+        let dots = this.circleContainer.selectAll("circle").data(dataContainers);
 
         dots
             .enter()
@@ -41,7 +43,7 @@ export class Circles {
     }
 
     public onZoom(zoomEvent, new_xScale, new_yScale) {
-        this.container.selectAll("circle")
+        this.circleContainer.selectAll("circle")
             .attr("cy", function (d) {
                 return new_yScale(d.y);
             })

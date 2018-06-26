@@ -2,8 +2,12 @@ import {CoinScatter} from "./coin-scatter";
 
 export class EuroReferenceLine {
 
+    private refLineContainer;
+
     constructor(private container, yScale) {
-        this.container.append('line')
+        this.refLineContainer = this.container.append("g").attr("id", "ref-line-container");
+
+        this.refLineContainer.append('line')
             .attr("class", "ref-line")
             .attr('x1', 0)
             .attr('y1', yScale(1))
@@ -12,13 +16,13 @@ export class EuroReferenceLine {
     }
 
     public onZoom(yScale) {
-        this.container.select('.ref-line')
+        this.refLineContainer.select('.ref-line')
             .attr('y1', yScale(1))
             .attr('y2', yScale(1));
     }
 
     public onUpdate(yScale) {
-        this.container.select('.ref-line')
+        this.refLineContainer.select('.ref-line')
             .transition()
             .duration(1000)
             .attr('y1', yScale(1))

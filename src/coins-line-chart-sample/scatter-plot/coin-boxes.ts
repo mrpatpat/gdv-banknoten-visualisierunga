@@ -5,12 +5,15 @@ export class CoinBoxes {
 
     public hover$ = new Subject<DataContainer>();
 
+    private coinBoxesContainer;
+
     constructor(private container) {
+        this.coinBoxesContainer = this.container.append("g").attr("id", "coin-boxes-container");
 
     }
 
     public onUpdate(dataContainers: DataContainer[], xScale, yScale) {
-        let rects = this.container.selectAll("rect").data(dataContainers);
+        let rects = this.coinBoxesContainer.selectAll("rect").data(dataContainers);
 
         let rectXFn = (d: DataContainer) => {
             return xScale(d.x) - CoinScatter.COIN_OFFSET/2 - CoinScatter.COIN_WIDTH/2;
@@ -59,7 +62,7 @@ export class CoinBoxes {
 
     public onZoom(zoomEvent, new_xScale, new_yScale) {
 
-        this.container.selectAll("rect")
+        this.coinBoxesContainer.selectAll("rect")
             .attr("width", CoinScatter.COIN_OFFSET * zoomEvent.transform.k + CoinScatter.COIN_WIDTH* zoomEvent.transform.k )
             .attr("height", (dc)=>{
                 let rows = dc.coinrows.length;

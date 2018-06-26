@@ -7,7 +7,6 @@ import {ValueGraph} from "./value-graph";
 import {Circles} from "./circles";
 import {Coins} from "./coins";
 import {CoinBoxes} from "./coin-boxes";
-import {CoinGroupTooltip} from "./coin-group-tooltip";
 
 export interface DataContainer {
     x: Date,
@@ -50,12 +49,12 @@ export class CoinScatter {
         this.xScale = this.initScaleX();
         this.yScale = this.initScaleY();
 
-        this.axis = new Axis(this.container, this.xScale, this.yScale);
         this.euroReferenceLine = new EuroReferenceLine(this.container, this.yScale);
         this.valueGraph = new ValueGraph(this.container);
         this.circles = new Circles(this.container);
-        this.coins = new Coins(this.container);
         this.coinBoxes = new CoinBoxes(this.container);
+        this.coins = new Coins(this.container);
+        this.axis = new Axis(this.container, this.xScale, this.yScale);
 
         this.coins.hover$.subscribe((d)=>{
             DataService.hover(d);

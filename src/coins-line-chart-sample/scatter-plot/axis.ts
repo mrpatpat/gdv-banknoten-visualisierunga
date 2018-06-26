@@ -6,9 +6,13 @@ export class Axis {
     private xAxis;
     private yAxis;
 
+    private axisContainer;
+
     constructor(private container, xScale, yScale) {
 
-        this.container.append("text")
+        this.axisContainer = this.container.append("g").attr("id", "axis-container");
+
+        this.axisContainer.append("text")
             .attr("class", "axis-label")
             .attr("x", CoinScatter.WIDTH / 2)
             .attr("y", CoinScatter.HEIGHT + 20)
@@ -16,7 +20,7 @@ export class Axis {
             .style("text-anchor", "middle")
             .text("Jahr");
 
-        this.container.append("text")
+        this.axisContainer.append("text")
             .attr("class", "axis-label")
             .attr("transform", "rotate(-90)")
             .attr("y", 0 - CoinScatter.MARGIN)
@@ -26,12 +30,12 @@ export class Axis {
             .text("Kaufkraft in Euro pro Mark");
 
 
-        this.yAxis = this.container.append("g")
+        this.yAxis = this.axisContainer.append("g")
             .attr("class", "y-axis")
             .call(d3.axisLeft(yScale));
 
 
-        this.xAxis = this.container.append("g")
+        this.xAxis = this.axisContainer.append("g")
             .attr("transform", "translate(0," + CoinScatter.HEIGHT + ")")
             .attr("class", "x-axis")
             .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%y")));
@@ -44,12 +48,12 @@ export class Axis {
     }
 
     public onUpdate(xScale, yScale) {
-        this.container.select(".x-axis")
+        this.axisContainer.select(".x-axis")
             .transition()
             .duration(1000)
             .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%y")));
 
-        this.container.select(".y-axis")
+        this.axisContainer.select(".y-axis")
             .transition()
             .duration(1000)
             .call(d3.axisLeft(yScale));
