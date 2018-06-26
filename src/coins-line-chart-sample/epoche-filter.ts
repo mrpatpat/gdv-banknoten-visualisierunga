@@ -15,9 +15,9 @@ export class EpocheFilter {
 
     private static EPOCHES: Epoche[] = [
         { name: "Alle", from: 1880, to: 1960 },
-        { name: "Reichsmark", from: 1924, to: 1925 },
-        { name: "Rentenmark", from: 1923, to: 1924 },
-        { name: "Mark", from: 1871, to: 1923 }
+        { name: "Deutsches Kaiserreich", from: 1880, to: 1919 },
+        { name: "Weimarer Republik", from: 1919, to: 1933 },
+        { name: "Drittes Reich bis Ära Adenauer", from: 1933, to: 1960 },
     ];
 
     private container;
@@ -75,7 +75,8 @@ export class EpocheFilter {
                 .on("click", ()=>{
                     DataService.filterByTime(e.from, e.to);
                     (slider as any).noUiSlider.set([e.from, e.to]);
-                });
+                })
+                .append("br");
         });
 
         this.highlightEpoche(1880,1960);

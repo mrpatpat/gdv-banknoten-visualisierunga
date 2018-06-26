@@ -5,12 +5,12 @@ body {
 }
 
 .card {
-  margin-top:10px;
+  margin-top: 10px;
   background-color: #dfdede;
   border: 0 !important;
 
   img {
-    max-width:100%;
+    max-width: 100%;
   }
 
 }
@@ -18,15 +18,16 @@ body {
 #epoche-buttons {
   text-align: center;
   a {
-     margin: 5px;
-     padding: 5px;
+    display: block;
+    clear: both;
+    margin: 15px !important;
+    padding: 5px;
     border-radius: 3px;
   }
   a:hover, a.highlight {
     background-color: #c0b7b7;
   }
 }
-
 
 #time-filter {
   margin: 20px;
@@ -71,7 +72,7 @@ body {
 
 .x-axis, .y-axis {
 
-  line,path {
+  line, path {
     stroke: #c0b7b7;
     stroke-width: 2px;
   }

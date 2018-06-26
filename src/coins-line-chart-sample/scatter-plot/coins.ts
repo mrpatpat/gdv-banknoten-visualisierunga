@@ -42,7 +42,7 @@ export class Coins {
         coins
             .enter()
             .append('image')
-            .attr("xlink:href", d => d.thumb)
+            .attr("xlink:href", d => d.image)
             .attr("id", d => "image-" + d.id)
             .attr("width", CoinScatter.COIN_WIDTH)
             .on("mouseover", (d) => {
@@ -58,7 +58,7 @@ export class Coins {
 
 
         coins
-            .attr("xlink:href", d => d.thumb)
+            .attr("xlink:href", d => d.image)
             .attr("id", d => "image-" + d.id)
             .attr("width", CoinScatter.COIN_WIDTH)
             .on("mouseover", (d) => {
